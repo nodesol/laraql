@@ -2,9 +2,9 @@
 
 namespace Nodesol\LaraQL;
 
+use Nodesol\LaraQL\Commands\LaraQLCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Nodesol\LaraQL\Commands\LaraQLCommand;
 
 class LaraQLServiceProvider extends PackageServiceProvider
 {
