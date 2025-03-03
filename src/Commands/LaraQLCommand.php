@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Nodesol\LaraQL\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaraQLCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laraql';
 
     public $description = 'My command';
 
