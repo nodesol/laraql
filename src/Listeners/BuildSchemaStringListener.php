@@ -2,10 +2,10 @@
 
 namespace Nodesol\LaraQL\Listeners;
 
-use Nodesol\LaraQL\Attributes\Model as ModelAttribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Nodesol\LaraQL\Attributes\Input;
+use Nodesol\LaraQL\Attributes\Model as ModelAttribute;
 use Nodesol\LaraQL\Attributes\Mutation;
 use Nodesol\LaraQL\Attributes\Query;
 use Nodesol\LaraQL\Attributes\QueryCollection;
@@ -27,7 +27,7 @@ class BuildSchemaStringListener
      */
     public function handle(BuildSchemaString $event): string
     {
-        if(config("laraql.cache")) {
+        if (config('laraql.cache')) {
             return Cache::rememberForever('laraql_schema', fn () => $this->getSchemaString());
         }
 
@@ -36,7 +36,7 @@ class BuildSchemaStringListener
 
     private function getSchemaString(): string
     {
-        $directories = config("laraql.directories");
+        $directories = config('laraql.directories');
         $schema = [];
         foreach ($directories as $path) {
             $iterator = new \RegexIterator(
@@ -52,13 +52,13 @@ class BuildSchemaStringListener
                 $class = $this->getClassFromPath($sourceFile);
                 $model = $this->getModel($class);
                 $reflection = new \ReflectionClass($class);
-                if($model){
+                if ($model) {
                     $schema[] = $model->getSchema();
                 }
 
                 $attributes = $reflection->getAttributes();
-                foreach($attributes as $attribute) {
-                    $item = match($attribute->getName()){
+                foreach ($attributes as $attribute) {
+                    $item = match ($attribute->getName()) {
                         Input::class,
                         Mutation::class,
                         Query::class,
@@ -66,14 +66,15 @@ class BuildSchemaStringListener
                         Type::class => $this->getObject($class, $attribute),
                         default => null
                     };
-                    if($item) {
+                    if ($item) {
                         $schema[] = $item->getSchema();
                     }
                 }
             }
         }
         $return = implode("\n\n", $schema);
-        return $return . <<<TEST
+
+        return $return.<<<TEST
             scalar Upload @scalar(class: "Nuwave\\\\Lighthouse\\\\Schema\\\\Types\\\\Scalars\\\\Upload")
             scalar DateTime @scalar(class: "Nuwave\\\\Lighthouse\\\\Schema\\\\Types\\\\Scalars\\\\DateTime")
             scalar Date @scalar(class: "Nuwave\\\\Lighthouse\\\\Schema\\\\Types\\\\Scalars\\\\Date")
@@ -109,8 +110,9 @@ class BuildSchemaStringListener
         TEST;
     }
 
-    private function getModel($class) : ModelAttribute|null {
-        if(!$this->isValid($class)){
+    private function getModel($class): ?ModelAttribute
+    {
+        if (! $this->isValid($class)) {
             return null;
         }
 
@@ -118,38 +120,41 @@ class BuildSchemaStringListener
         $attributes = $reflection->getAttributes(ModelAttribute::class);
         $arguements = [];
 
-        if(count($attributes)){
+        if (count($attributes)) {
             $arguements = $attributes[0]->getArguments();
         }
 
-        $arguements["class"] = $class;
+        $arguements['class'] = $class;
 
         return new ModelAttribute(...$arguements);
     }
 
-    private function getObject(string $class, \ReflectionAttribute $attribute) {
+    private function getObject(string $class, \ReflectionAttribute $attribute)
+    {
         $aclass = $attribute->getName();
         $arguments = $attribute->getArguments();
-        $arguments["class"] = $class;
+        $arguments['class'] = $class;
+
         return new $aclass(...$arguments);
     }
 
-    private function isValid($class) : bool {
-        if (!class_exists($class)) {
+    private function isValid($class): bool
+    {
+        if (! class_exists($class)) {
             return false;
         }
 
         $reflection = new \ReflectionClass($class);
 
-        if(!$reflection->isSubclassOf(Model::class)) {
+        if (! $reflection->isSubclassOf(Model::class)) {
             return false;
         }
 
-        if($reflection->isAbstract()) {
+        if ($reflection->isAbstract()) {
             return false;
         }
 
-        if(!config('laraql.models.auto_include') && !count($reflection->getAttributes(ModelAttribute::class))) {
+        if (! config('laraql.models.auto_include') && ! count($reflection->getAttributes(ModelAttribute::class))) {
             return false;
         }
 
@@ -157,13 +162,10 @@ class BuildSchemaStringListener
 
     }
 
-     /**
-     * @param string $path
-     * @return string
-     */
     private function getClassFromPath(string $path): string
     {
-        $path = str_replace(app_path("/"), "", $path);
+        $path = str_replace(app_path('/'), '', $path);
+
         return sprintf(
             '%s%s',
             app()->getNamespace(),

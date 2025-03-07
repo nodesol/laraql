@@ -2,19 +2,22 @@
 
 namespace Nodesol\LaraQL\Attributes;
 
-use Nodesol\LaraQL\Types\RelationTypes;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Nodesol\LaraQL\Types\ColumnTypes;
+use Nodesol\LaraQL\Types\RelationTypes;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Model {
-
+class Model
+{
     private \ReflectionObject $reflector;
+
     private EloquentModel $model;
+
     private Collection $columns;
+
     public function __construct(
         public string $class,
         public ?array $operations = [],
@@ -22,20 +25,20 @@ class Model {
         public ?bool $auth_check = false,
         public bool|string $authorize = false,
         public ?string $validator = null,
-    )
-    {
+    ) {
         $this->model = new $class;
         $this->reflector = new \ReflectionObject($this->model);
         $this->initColumns();
 
     }
 
-    private function initColumns(){
+    private function initColumns()
+    {
         $columns = [];
-        foreach(Schema::getColumns($this->model->getTable()) as $column){
+        foreach (Schema::getColumns($this->model->getTable()) as $column) {
             $type = ColumnTypes::getType($column['type_name'], $column['auto_increment'] ?? false);
 
-            if (!$column['nullable']) {
+            if (! $column['nullable']) {
                 $type .= '!';
             }
             $column['graphql_type'] = $type;
@@ -49,7 +52,8 @@ class Model {
         $this->columns = collect($columns);
     }
 
-    public function getInputSchema() {
+    public function getInputSchema()
+    {
         $cols = $this->columns
             ->where('fillable', true)
             ->pluck('graphql_type', 'name')
@@ -59,10 +63,12 @@ class Model {
             name: "{$this->reflector->getShortName()}Input",
             inputs: $cols
         );
+
         return $input->getSchema();
     }
 
-    public function getTypeSchema() {
+    public function getTypeSchema()
+    {
         $columns = $this->columns
             ->where('hidden', false)
             ->pluck('graphql_type', 'name')
@@ -71,11 +77,11 @@ class Model {
         foreach ($this->reflector->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             try {
                 $returnType = $method->getReturnType();
-                if ($returnType && method_exists($returnType, 'isBuiltin') && (!$returnType->isBuiltin()) && $method->hasReturnType()) {
+                if ($returnType && method_exists($returnType, 'isBuiltin') && (! $returnType->isBuiltin()) && $method->hasReturnType()) {
                     $methodName = $method->getName();
-                    $relation   = new \ReflectionClass($returnType->getName());
+                    $relation = new \ReflectionClass($returnType->getName());
                     if ($method->getNumberOfParameters() == 0 && $relation->isSubclassOf(Relation::class)) {
-                        $relatedClassName  = class_basename($method->invoke($this->model)->getRelated());
+                        $relatedClassName = class_basename($method->invoke($this->model)->getRelated());
                         $relationClassName = $relation->getShortName();
 
                         $relationName = lcfirst($relationClassName);
@@ -91,7 +97,6 @@ class Model {
             }
         }
 
-
         $type = new Type(
             class: $this->class,
             create_paginator: false,
@@ -101,13 +106,14 @@ class Model {
         return $type->getSchema();
     }
 
-    private function getArguments(?array $args):array{
+    private function getArguments(?array $args): array
+    {
         $return = [
-            "class" => $this->class,
-            "directives" => $this->directives,
+            'class' => $this->class,
+            'directives' => $this->directives,
         ];
-        if($args && count($args)) {
-            if(isset($args['directives'])) {
+        if ($args && count($args)) {
+            if (isset($args['directives'])) {
                 $args['directives'] = array_merge($this->directives, $args['directives']);
             }
             $return = array_merge($return, $args);
@@ -117,27 +123,30 @@ class Model {
 
     }
 
-    public function getOperations() {
+    public function getOperations()
+    {
         return [
             new Query(...$this->getArguments($this->operations['query'] ?? [])),
             new QueryCollection(...$this->getArguments($this->operations['query_collection'] ?? [])),
             new Mutation(...$this->getArguments($this->operations['create'] ?? []), name: 'create'),
             new Mutation(...$this->getArguments($this->operations['update'] ?? []), name: 'update'),
-            new Mutation(...$this->getArguments($this->operations['delete'] ?? []), name: 'delete')
+            new Mutation(...$this->getArguments($this->operations['delete'] ?? []), name: 'delete'),
         ];
     }
 
-    public function getOperationSchema() {
+    public function getOperationSchema()
+    {
         $schema = [];
 
-        foreach($this->getOperations() as &$operation) {
+        foreach ($this->getOperations() as &$operation) {
             $schema[] = $operation->getSchema();
         }
 
         return implode(" \n ", $schema);
     }
 
-    public function getSchema() {
+    public function getSchema()
+    {
 
         return <<<SCHEMA
             {$this->getTypeSchema()}

@@ -23,7 +23,8 @@ class LaraQLServiceProvider extends PackageServiceProvider
             ->hasConfigFile();
     }
 
-    public function packageBooted(){
+    public function packageBooted()
+    {
         Event::listen(
             BuildSchemaString::class,
             BuildSchemaStringListener::class

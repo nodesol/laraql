@@ -4,47 +4,73 @@ namespace Nodesol\LaraQL\Types;
 
 class ColumnTypes
 {
-
     public const SMALLINT = 'smallint';
+
     public const MEDIUMINT = 'mediumint';
+
     public const INT = 'int';
+
     public const INTEGER = 'integer';
+
     public const BIGINT = 'bigint';
+
     public const YEAR = 'year';
+
     public const BINARY = 'binary';
 
     public const BOOLEAN = 'boolean';
+
     public const TINYINT = 'tinyint';
 
     public const TINYTEXT = 'tinytext';
+
     public const TEXT = 'text';
+
     public const MEDIUMTEXT = 'mediumtext';
+
     public const TINYBLOB = 'tinyblob';
+
     public const BLOB = 'blob';
+
     public const MEDIUMBLOB = 'mediumblob';
+
     public const STRING = 'string';
+
     public const ASCII_STRING = 'ascii_string';
+
     public const ARRAY = 'array';
+
     public const VARCHAR = 'varchar';
+
     public const ENUM = 'enum';
 
     public const FLOAT = 'float';
+
     public const DECIMAL = 'decimal';
 
     public const JSON = 'json';
+
     public const OBJECT = 'object';
 
     public const DATE = 'date';
+
     public const DATETIME = 'datetime';
+
     public const DATE_IMMUTABLE = 'date_immutable';
+
     public const DATEINTERVAL = 'dateinterval';
+
     public const DATETIME_IMMUTABLE = 'datetime_immutable';
+
     public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
+
     public const TIME = 'time';
+
     public const TIME_IMMUTABLE = 'time_immutable';
+
     public const TIMESTAMP = 'timestamp';
 
-    /** @var string[]  */
+    /** @var string[] */
     public const INT_TYPES = [
         self::SMALLINT,
         self::MEDIUMINT,
@@ -97,24 +123,22 @@ class ColumnTypes
         self::TIMESTAMP,
     ];
 
-    public static function getType($type, $auto_increment=false) {
-        return match(true){
-            (in_array($type, self::INT_TYPES) && $auto_increment) => "ID",
-            in_array($type, self::INT_TYPES) => "Int",
-            in_array($type, self::STRING_TYPES) => "String",
-            in_array($type, self::BOOLEAN_TYPES) => "Boolean",
-            in_array($type, self::FLOAT_TYPES) => "Float",
-            in_array($type, self::JSON_TYPES) => "Json",
-            $type === 'date' => "Date",
-            $type === 'datetimetz' => "DateTimeTz",
-            in_array($type, self::DATETIME_TYPES) => "DateTime",
-            default => "String"
+    public static function getType($type, $auto_increment = false)
+    {
+        return match (true) {
+            (in_array($type, self::INT_TYPES) && $auto_increment) => 'ID',
+            in_array($type, self::INT_TYPES) => 'Int',
+            in_array($type, self::STRING_TYPES) => 'String',
+            in_array($type, self::BOOLEAN_TYPES) => 'Boolean',
+            in_array($type, self::FLOAT_TYPES) => 'Float',
+            in_array($type, self::JSON_TYPES) => 'Json',
+            $type === 'date' => 'Date',
+            $type === 'datetimetz' => 'DateTimeTz',
+            in_array($type, self::DATETIME_TYPES) => 'DateTime',
+            default => 'String'
         };
     }
 
-    /**
-     * @return array
-     */
     private function getColumnTypes(): array
     {
         $intTypes = [
@@ -124,7 +148,7 @@ class ColumnTypes
             'integer',
             'bigint',
             'year',
-            'binary'
+            'binary',
         ];
 
         $booleanTypes = [
@@ -144,17 +168,17 @@ class ColumnTypes
             'ascii_string',
             'array',
             'varchar',
-            'enum'
+            'enum',
         ];
 
         $floatTypes = [
             'float',
-            'decimal'
+            'decimal',
         ];
 
         $jsonTypes = [
             'json',
-            'object'
+            'object',
         ];
 
         $timeTypes = [
@@ -164,7 +188,7 @@ class ColumnTypes
             'datetimetz_immutable',
             'time',
             'time_immutable',
-            'timestamp'
+            'timestamp',
         ];
 
         return compact(
