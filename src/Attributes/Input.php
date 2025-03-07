@@ -33,10 +33,12 @@ class Input
         foreach ($this->reflector->getProperties() as $property) {
             $type = 'String!';
             if ($property->hasType()) {
-                if ($property->getType()->isBuiltIn()) {
-                    $type = ColumnTypes::getType($property->getType()->getName());
+                /** @var \ReflectionNamedType $property_type */
+                $property_type = $property->getType();
+                if ($property_type->isBuiltIn()) {
+                    $type = ColumnTypes::getType($property_type->getName());
                 } else {
-                    $parts = explode('\\', $property->getType()->getName());
+                    $parts = explode('\\', $property_type->getName());
                     $type = end($parts);
                 }
 
