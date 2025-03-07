@@ -82,7 +82,7 @@ class Model
                 $returnType = $method->getReturnType();
                 if ($returnType && method_exists($returnType, 'isBuiltin') && (! $returnType->isBuiltin()) && $method->hasReturnType()) {
                     $methodName = $method->getName();
-                    $relation = new \ReflectionClass( $returnType->getName());
+                    $relation = new \ReflectionClass($returnType->getName());
                     if ($method->getNumberOfParameters() == 0 && $relation->isSubclassOf(Relation::class)) {
                         $relatedClassName = class_basename($method->invoke($this->model)->getRelated());
                         $relationClassName = $relation->getShortName();

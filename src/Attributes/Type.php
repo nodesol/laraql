@@ -34,7 +34,7 @@ class Type
         foreach ($this->reflector->getProperties() as $property) {
             $type = 'String!';
             if ($property->hasType()) {
-                /** @var \ReflectionNamedType $property_type  */
+                /** @var \ReflectionNamedType $property_type */
                 $property_type = $property->getType();
                 if ($property_type->isBuiltIn()) {
                     $type = ColumnTypes::getType($property_type->getName());
