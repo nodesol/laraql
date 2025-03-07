@@ -38,8 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Nodesol\\LaraQL\\": "src/",
-            "Nodesol\\LaraQL\\Database\\Factories\\": "database/factories/"
+            "Nodesol\\LaraQL\\": "src/"
         }
     },
     "autoload-dev": {
