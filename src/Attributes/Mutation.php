@@ -2,62 +2,67 @@
 
 namespace Nodesol\LaraQL\Attributes;
 
-class Mutation implements Operation {
-
+class Mutation implements Operation
+{
     private \ReflectionClass $reflector;
+
     public function __construct(
         public string $class,
         public string $name,
-        public ?string $return_type=null,
+        public ?string $return_type = null,
         public ?array $directives = [],
         public ?array $inputs = null,
-        public ?string $query=null,
-    )
-    {
+        public ?string $query = null,
+    ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
 
-    public function getName() : string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
-    public function getInputs() : array {
-        if($this->inputs) {
+    public function getInputs(): array
+    {
+        if ($this->inputs) {
             return $this->inputs;
         }
 
-        return match($this->name){
-            "create" => ["input" => "{$this->reflector->getShortName()}Input!"],
-            "update" => ["id" => "ID!", "input" => "{$this->reflector->getShortName()}Input!"],
-            "delete" => ["id" => "ID!"],
-            default => ["id" => "ID!"],
+        return match ($this->name) {
+            'create' => ['input' => "{$this->reflector->getShortName()}Input!"],
+            'update' => ['id' => 'ID!', 'input' => "{$this->reflector->getShortName()}Input!"],
+            'delete' => ['id' => 'ID!'],
+            default => ['id' => 'ID!'],
         };
     }
 
-    public function getReturnType() : string {
-        if($this->return_type) {
+    public function getReturnType(): string
+    {
+        if ($this->return_type) {
             return $this->return_type;
         }
 
         return $this->reflector->getShortName();
     }
 
-    public function getQuery() : string {
-        if($this->query) {
+    public function getQuery(): string
+    {
+        if ($this->query) {
             return $this->query;
         }
 
         return "@{$this->name}";
     }
 
-    public function getSchema() : string {
+    public function getSchema(): string
+    {
         $inputs = $this->getInputs();
         $input = implode(" \n ", array_map(
-            (fn($key, $value) : string => "$key: $value"),
+            (fn ($key, $value): string => "$key: $value"),
             array_keys($inputs),
             array_values($inputs)
         ));
-        $directives = implode(" ", $this->directives);
+        $directives = implode(' ', $this->directives);
 
         return <<<ENDDATA
         extend type Mutation $directives {
