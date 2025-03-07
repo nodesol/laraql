@@ -3,8 +3,11 @@
     "description": "This is my package laraql",
     "keywords": [
         "Nodesol Corp",
+        "nodesol",
         "laravel",
-        "laraql"
+        "laraql",
+        "graphql",
+        "lighthouse"
     ],
     "homepage": "https://github.com/nodesol/laraql",
     "license": "MIT",
@@ -18,7 +21,8 @@
     "require": {
         "php": "^8.4",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^10.0||^11.0||^12.0"
+        "illuminate/contracts": "^10.0||^11.0||^12.0",
+        "nuwave/lighthouse": "^6.50"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -62,11 +66,9 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nodesol\\LaraQL\\LaraQLServiceProvider"
-            ],
-            "aliases": {
-                "LaraQL": "Nodesol\\LaraQL\\Facades\\LaraQL"
-            }
+                "Nodesol\\LaraQL\\LaraQLServiceProvider",
+                "Nuwave\\Lighthouse\\WhereConditions\\WhereConditionsServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",

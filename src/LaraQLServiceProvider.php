@@ -2,7 +2,10 @@
 
 namespace Nodesol\LaraQL;
 
-use Nodesol\LaraQL\Commands\LaraQLCommand;
+use Illuminate\Support\Facades\Event;
+use Nodesol\LaraQL\Listeners\BuildSchemaStringListener;
+use Nuwave\Lighthouse\Events\BuildSchemaString;
+use Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,9 +20,18 @@ class LaraQLServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laraql')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_laraql_table')
-            ->hasCommand(LaraQLCommand::class);
+            ->hasConfigFile();
+    }
+
+    public function packageBooted(){
+        Event::listen(
+            BuildSchemaString::class,
+            BuildSchemaStringListener::class
+        );
+    }
+
+    public function packageRegistered()
+    {
+        $this->app->register(WhereConditionsServiceProvider::class);
     }
 }
