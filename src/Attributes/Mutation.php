@@ -24,7 +24,7 @@ class Mutation implements Operation
 
     public function getInputs(): array
     {
-        if ($this->inputs) {
+        if (!is_null($this->inputs)) {
             return $this->inputs;
         }
 
@@ -64,11 +64,15 @@ class Mutation implements Operation
         ));
         $directives = implode(' ', $this->directives);
 
+        $input = count($this->getInputs() ?? []) ? <<<ENDDATA
+            (
+                $input
+            )
+        ENDDATA : '';
+
         return <<<ENDDATA
         extend type Mutation $directives {
-            {$this->name}{$this->reflector->getShortName()} (
-                $input
-            ): {$this->getReturnType()} {$this->getQuery()}
+            {$this->name}{$this->reflector->getShortName()} $input: {$this->getReturnType()} {$this->getQuery()}
         }
         ENDDATA;
     }
