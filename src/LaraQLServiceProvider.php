@@ -2,13 +2,13 @@
 
 namespace Nodesol\LaraQL;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Event;
 use Nodesol\LaraQL\Listeners\BuildSchemaStringListener;
 use Nuwave\Lighthouse\Events\BuildSchemaString;
 use Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Illuminate\Contracts\Config\Repository;
 
 class LaraQLServiceProvider extends PackageServiceProvider
 {
@@ -33,7 +33,7 @@ class LaraQLServiceProvider extends PackageServiceProvider
 
         $configRepository = app(Repository::class);
         $this->publishes([
-            __DIR__ . '/default-schema.graphql' => $configRepository->get('lighthouse.schema_path'),
+            __DIR__.'/default-schema.graphql' => $configRepository->get('lighthouse.schema_path'),
         ], 'laraql-schema');
     }
 
@@ -52,8 +52,8 @@ class LaraQLServiceProvider extends PackageServiceProvider
         // $this->app->register(\Nuwave\Lighthouse\SoftDeletes\SoftDeletesServiceProvider::class);
         // $this->app->register(\Nuwave\Lighthouse\Testing\TestingServiceProvider::class);
         // $this->app->register(\Nuwave\Lighthouse\Validation\ValidationServiceProvider::class);
-        if(class_exists("\\MLL\\GraphiQL\\GraphiQLServiceProvider")) {
-            $this->app->register("\\MLL\\GraphiQL\\GraphiQLServiceProvider");
+        if (class_exists('\\MLL\\GraphiQL\\GraphiQLServiceProvider')) {
+            $this->app->register('\\MLL\\GraphiQL\\GraphiQLServiceProvider');
         }
     }
 }
