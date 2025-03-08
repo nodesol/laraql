@@ -39,7 +39,7 @@ class BuildSchemaStringListener
         $directories = config('laraql.directories');
         $schema = [];
         foreach ($directories as $path) {
-            if(!is_dir($path)) {
+            if (! is_dir($path)) {
                 continue;
             }
             $iterator = new \RegexIterator(

@@ -6,7 +6,6 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Event;
 use Nodesol\LaraQL\Listeners\BuildSchemaStringListener;
 use Nuwave\Lighthouse\Events\BuildSchemaString;
-use Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
