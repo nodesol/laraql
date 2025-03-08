@@ -32,9 +32,9 @@ class QueryCollection implements Operation
     public function getSchema(): string
     {
         $directives = implode(' ', $this->directives);
-        $filters = "";
+        $filters = '';
 
-        if(is_array($this->filters) && count($this->filters)){
+        if (is_array($this->filters) && count($this->filters)) {
             $filters = implode(" \n ", $this->filters);
             $filters = <<<ENDDATA
                 (
