@@ -24,7 +24,7 @@ class Mutation implements Operation
 
     public function getInputs(): array
     {
-        if (!is_null($this->inputs)) {
+        if (! is_null($this->inputs)) {
             return $this->inputs;
         }
 
