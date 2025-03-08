@@ -32,13 +32,20 @@ class QueryCollection implements Operation
     public function getSchema(): string
     {
         $directives = implode(' ', $this->directives);
-        $filters = implode(" \n ", $this->filters);
+        $filters = "";
+
+        if(is_array($this->filters) && count($this->filters)){
+            $filters = implode(" \n ", $this->filters);
+            $filters = <<<ENDDATA
+                (
+                    $filters
+                )
+            ENDDATA;
+        }
 
         return <<<ENDDATA
         extend type Query $directives {
-            {$this->getName()} (
-                $filters
-            ): {$this->getReturnType()} {$this->query}
+            {$this->getName()} $filters: {$this->getReturnType()} {$this->query}
         }
         ENDDATA;
     }
