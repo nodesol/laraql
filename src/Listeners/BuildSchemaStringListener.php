@@ -39,6 +39,9 @@ class BuildSchemaStringListener
         $directories = config('laraql.directories');
         $schema = [];
         foreach ($directories as $path) {
+            if(!is_dir($path)) {
+                continue;
+            }
             $iterator = new \RegexIterator(
                 new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
