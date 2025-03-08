@@ -33,7 +33,7 @@ class LaraQLServiceProvider extends PackageServiceProvider
 
         $configRepository = app(Repository::class);
         $this->publishes([
-            __DIR__ . '/../default-schema.graphql' => $configRepository->get('lighthouse.schema_path'),
+            __DIR__.'/../default-schema.graphql' => $configRepository->get('lighthouse.schema_path'),
         ], 'laraql-schema');
     }
 }
