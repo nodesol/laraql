@@ -82,6 +82,10 @@ class BuildSchemaStringListener
             scalar DateTime @scalar(class: "Nuwave\\\\Lighthouse\\\\Schema\\\\Types\\\\Scalars\\\\DateTime")
             scalar Date @scalar(class: "Nuwave\\\\Lighthouse\\\\Schema\\\\Types\\\\Scalars\\\\Date")
 
+            extend type Query {
+                graphql(id: ID):[String!] @find
+            }
+
             directive @whereConditions(
                 """
                 Restrict the allowed column names to a well-defined list.
