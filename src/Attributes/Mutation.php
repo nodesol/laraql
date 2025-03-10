@@ -24,7 +24,7 @@ class Mutation implements Operation
 
     public function getInputs(): array
     {
-        if (! is_null($this->inputs)) {
+        if (! is_null($this->inputs) && is_array($this->inputs)) {
             return $this->inputs;
         }
 
@@ -64,7 +64,7 @@ class Mutation implements Operation
         ));
         $directives = implode(' ', $this->directives);
 
-        $input = count($this->getInputs() ?? []) ? <<<ENDDATA
+        $input = count($this->getInputs()) ? <<<ENDDATA
             (
                 $input
             )
