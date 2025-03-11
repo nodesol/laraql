@@ -29,8 +29,8 @@ class Mutation implements Operation
         }
 
         return match ($this->name) {
-            'create' => ['input' => "{$this->reflector->getShortName()}Input!"],
-            'update' => ['id' => 'ID!', 'input' => "{$this->reflector->getShortName()}Input!"],
+            'create' => ['input' => "{$this->reflector->getShortName()}Input! @spread"],
+            'update' => ['id' => 'ID!', 'input' => "{$this->reflector->getShortName()}Input! @spread"],
             'delete' => ['id' => 'ID!'],
             default => ['id' => 'ID!'],
         };
