@@ -31,7 +31,7 @@ class Mutation implements Operation
         return match ($this->name) {
             'create' => ['input' => "{$this->reflector->getShortName()}Input! @spread"],
             'update' => ['id' => 'ID!', 'input' => "{$this->reflector->getShortName()}Input! @spread"],
-            'delete' => ['id' => 'ID!'],
+            'delete' => ['id' => 'ID! @whereKey'],
             default => ['id' => 'ID!'],
         };
     }
