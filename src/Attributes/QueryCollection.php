@@ -13,8 +13,9 @@ class QueryCollection implements Operation
         public ?string $name = null,
         public ?string $return_type = null,
         public ?array $directives = [],
-        public ?array $filters = ['where: _ @whereConditions(column: {})', 'first: Int! = 10', 'page: Int'],
+        public ?array $filters = ['where: _ @whereConditions(column: {})', 'first: Int! = 10', 'page: Int', 'orderBy: _ @orderBy'],
         public ?string $query = '@paginate(defaultCount: 10)',
+        public bool|string|null $authorize = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -27,6 +28,18 @@ class QueryCollection implements Operation
     public function getReturnType(): string
     {
         return $this->return_type ?? ("[{$this->reflector->getShortName()}!]!");
+    }
+
+    public function getAuthorize() : string {
+        if(!is_null($this->authorize)) {
+            if(is_string($this->authorize)) {
+                return $this->authorize;
+            }
+
+            return "@canModel(ability: \"view\")";
+        }
+
+        return "";
     }
 
     public function getSchema(): string

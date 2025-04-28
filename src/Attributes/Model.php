@@ -22,9 +22,7 @@ class Model
         public string $class,
         public ?array $operations = [],
         public ?array $directives = [],
-        public ?bool $auth_check = false,
-        public bool|string $authorize = false,
-        public ?string $validator = null,
+        public bool $authorize = false,
     ) {
         $this->model = new $class;
         $this->reflector = new \ReflectionObject($this->model);
@@ -114,6 +112,7 @@ class Model
         $return = [
             'class' => $this->class,
             'directives' => $this->directives,
+            'authorize' => $this->authorize
         ];
         if ($args && count($args) > 0) {
             if (isset($args['directives'])) {

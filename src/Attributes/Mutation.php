@@ -13,6 +13,7 @@ class Mutation implements Operation
         public ?array $directives = [],
         public ?array $inputs = null,
         public ?string $query = null,
+        public bool|string|null $authorize = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -20,6 +21,28 @@ class Mutation implements Operation
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getAuthorize() : string {
+        if(!is_null($this->authorize)) {
+            if(is_string($this->authorize)) {
+                return $this->authorize;
+            }
+
+            if($this->name == "create") {
+                return "@canModel(ability: \"create\")";
+            }
+            else if($this->name == "update") {
+                return "@canModel(ability: \"update\")";
+            }
+            else if($this->name == "delete") {
+                return "@canModel(ability: \"delete\")";
+            }
+
+            return "@canFind(ability: \"create\", find: \"id\")";
+        }
+
+        return "";
     }
 
     public function getInputs(): array

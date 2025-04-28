@@ -15,6 +15,7 @@ class Query implements Operation
         public ?array $directives = [],
         public ?array $filters = ['id: ID @eq'],
         public ?string $query = '@find',
+        public bool|string|null $authorize = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -27,6 +28,18 @@ class Query implements Operation
     public function getReturnType()
     {
         return $this->return_type ?? $this->reflector->getShortName();
+    }
+
+    public function getAuthorize() : string {
+        if(!is_null($this->authorize)) {
+            if(is_string($this->authorize)) {
+                return $this->authorize;
+            }
+
+            return "@canFind(ability: \"viewAny\", find: \"id\")";
+        }
+
+        return "";
     }
 
     public function getSchema(): string
