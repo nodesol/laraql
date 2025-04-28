@@ -30,16 +30,17 @@ class Query implements Operation
         return $this->return_type ?? $this->reflector->getShortName();
     }
 
-    public function getAuthorize() : string {
-        if(!is_null($this->authorize)) {
-            if(is_string($this->authorize)) {
+    public function getAuthorize(): string
+    {
+        if (! is_null($this->authorize)) {
+            if (is_string($this->authorize)) {
                 return $this->authorize;
             }
 
-            return "@canFind(ability: \"viewAny\", find: \"id\")";
+            return '@canFind(ability: "viewAny", find: "id")';
         }
 
-        return "";
+        return '';
     }
 
     public function getSchema(): string

@@ -30,16 +30,17 @@ class QueryCollection implements Operation
         return $this->return_type ?? ("[{$this->reflector->getShortName()}!]!");
     }
 
-    public function getAuthorize() : string {
-        if(!is_null($this->authorize)) {
-            if(is_string($this->authorize)) {
+    public function getAuthorize(): string
+    {
+        if (! is_null($this->authorize)) {
+            if (is_string($this->authorize)) {
                 return $this->authorize;
             }
 
-            return "@canModel(ability: \"view\")";
+            return '@canModel(ability: "view")';
         }
 
-        return "";
+        return '';
     }
 
     public function getSchema(): string

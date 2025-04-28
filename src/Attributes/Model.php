@@ -112,7 +112,7 @@ class Model
         $return = [
             'class' => $this->class,
             'directives' => $this->directives,
-            'authorize' => $this->authorize
+            'authorize' => $this->authorize,
         ];
         if ($args && count($args) > 0) {
             if (isset($args['directives'])) {

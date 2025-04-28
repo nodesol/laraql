@@ -23,26 +23,25 @@ class Mutation implements Operation
         return $this->name;
     }
 
-    public function getAuthorize() : string {
-        if(!is_null($this->authorize)) {
-            if(is_string($this->authorize)) {
+    public function getAuthorize(): string
+    {
+        if (! is_null($this->authorize)) {
+            if (is_string($this->authorize)) {
                 return $this->authorize;
             }
 
-            if($this->name == "create") {
-                return "@canModel(ability: \"create\")";
-            }
-            else if($this->name == "update") {
-                return "@canModel(ability: \"update\")";
-            }
-            else if($this->name == "delete") {
-                return "@canModel(ability: \"delete\")";
+            if ($this->name == 'create') {
+                return '@canModel(ability: "create")';
+            } elseif ($this->name == 'update') {
+                return '@canModel(ability: "update")';
+            } elseif ($this->name == 'delete') {
+                return '@canModel(ability: "delete")';
             }
 
-            return "@canFind(ability: \"create\", find: \"id\")";
+            return '@canFind(ability: "create", find: "id")';
         }
 
-        return "";
+        return '';
     }
 
     public function getInputs(): array
