@@ -2,6 +2,10 @@
 
 All notable changes to `LaraQL` will be documented in this file.
 
+## v1.0.4 - 2025-04-28
+
+**Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.3...v1.0.4
+
 ## v1.0.3 - 2025-03-12
 
 **Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.2...v1.0.3
