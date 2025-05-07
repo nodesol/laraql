@@ -22,6 +22,8 @@ class Model
         public string $class,
         public ?array $operations = [],
         public ?array $directives = [],
+        public ?array $type_override = [],
+        public ?array $input_override = [],
         public bool $authorize = false,
     ) {
         $this->model = new $class;
@@ -56,6 +58,7 @@ class Model
             ->where('fillable', true)
             ->pluck('graphql_type', 'name')
             ->toArray();
+        $cols = array_merge($cols, $this->input_override);
         $input = new Input(
             class: $this->class,
             name: "{$this->reflector->getShortName()}Input",
@@ -71,6 +74,8 @@ class Model
             ->where('hidden', false)
             ->pluck('graphql_type', 'name')
             ->toArray();
+
+        $columns = array_merge($columns, $this->type_override);
 
         foreach ($this->reflector->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             try {

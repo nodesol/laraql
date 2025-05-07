@@ -30,15 +30,11 @@ class Mutation implements Operation
                 return $this->authorize;
             }
 
-            if ($this->name == 'create') {
-                return '@canModel(ability: "create")';
-            } elseif ($this->name == 'update') {
-                return '@canModel(ability: "update")';
-            } elseif ($this->name == 'delete') {
-                return '@canModel(ability: "delete")';
+            if($this->name == "create") {
+                return "@canModel(ability: \"create\")";
             }
 
-            return '@canFind(ability: "create", find: "id")';
+            return "@canFind(ability: \"{$this->name}\", find: \"id\")";
         }
 
         return '';
@@ -94,7 +90,7 @@ class Mutation implements Operation
 
         return <<<ENDDATA
         extend type Mutation $directives {
-            {$this->name}{$this->reflector->getShortName()} $input: {$this->getReturnType()} {$this->getQuery()}
+            {$this->name}{$this->reflector->getShortName()} $input: {$this->getReturnType()} {$this->getAuthorize()} {$this->getQuery()}
         }
         ENDDATA;
     }

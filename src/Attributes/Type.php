@@ -14,6 +14,7 @@ class Type
         public bool $create_paginator = false,
         public ?string $name = null,
         public ?array $columns = null,
+        public ?string $extends = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -70,8 +71,14 @@ class Type
             array_values($columns)
         ));
 
+        $extends = "";
+
+        if($this->extends) {
+            $extends = " extends {$this->extends} ";
+        }
+
         return <<<RETURN
-            type {$this->getName()} {
+            type {$this->getName()} $extends {
                 $cols
             }
             {$this->getPaginatorSchema()}
