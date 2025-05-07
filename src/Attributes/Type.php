@@ -14,6 +14,7 @@ class Type
         public bool $create_paginator = false,
         public ?string $name = null,
         public ?array $columns = null,
+        public ?array $columns_override = null,
         public ?string $extends = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
@@ -49,7 +50,7 @@ class Type
             $columns[$property->getName()] = $type;
         }
 
-        return $columns;
+        return array_merge($columns, ($this->columns_override ?? []));
     }
 
     public function getPaginatorSchema()

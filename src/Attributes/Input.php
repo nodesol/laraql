@@ -13,6 +13,7 @@ class Input
         public string $class,
         public ?string $name = null,
         public ?array $inputs = null,
+        public ?array $inputs_override = null,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -47,7 +48,7 @@ class Input
             $inputs[$property->getName()] = $type;
         }
 
-        return $inputs;
+        return array_merge($inputs, ($this->inputs_override ?? []));
     }
 
     public function getSchema()

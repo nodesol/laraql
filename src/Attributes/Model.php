@@ -58,11 +58,11 @@ class Model
             ->where('fillable', true)
             ->pluck('graphql_type', 'name')
             ->toArray();
-        $cols = array_merge($cols, $this->input_override);
         $input = new Input(
             class: $this->class,
             name: "{$this->reflector->getShortName()}Input",
-            inputs: $cols
+            inputs: $cols,
+            inputs_override: $this->input_override
         );
 
         return $input->getSchema();
@@ -74,8 +74,6 @@ class Model
             ->where('hidden', false)
             ->pluck('graphql_type', 'name')
             ->toArray();
-
-        $columns = array_merge($columns, $this->type_override);
 
         foreach ($this->reflector->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             try {
@@ -106,7 +104,8 @@ class Model
         $type = new Type(
             class: $this->class,
             create_paginator: false,
-            columns: $columns
+            columns: $columns,
+            columns_override: $this->type_override
         );
 
         return $type->getSchema();
