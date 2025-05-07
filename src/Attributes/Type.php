@@ -28,7 +28,7 @@ class Type
     public function getColumns()
     {
         if ($this->columns) {
-            return $this->columns;
+            return array_merge($this->columns, ($this->columns_override ?? []));
         }
 
         $columns = [];

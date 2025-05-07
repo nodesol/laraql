@@ -26,7 +26,7 @@ class Input
     public function getInputs()
     {
         if ($this->inputs) {
-            return $this->inputs;
+            return array_merge($this->inputs, ($this->inputs_override ?? []));
         }
 
         $inputs = [];
