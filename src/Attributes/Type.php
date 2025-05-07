@@ -71,9 +71,9 @@ class Type
             array_values($columns)
         ));
 
-        $extends = "";
+        $extends = '';
 
-        if($this->extends) {
+        if ($this->extends) {
             $extends = " extends {$this->extends} ";
         }
 

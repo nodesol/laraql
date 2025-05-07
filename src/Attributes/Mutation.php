@@ -30,8 +30,8 @@ class Mutation implements Operation
                 return $this->authorize;
             }
 
-            if($this->name == "create") {
-                return "@canModel(ability: \"create\")";
+            if ($this->name == 'create') {
+                return '@canModel(ability: "create")';
             }
 
             return "@canFind(ability: \"{$this->name}\", find: \"id\")";
