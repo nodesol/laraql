@@ -37,7 +37,7 @@ class QueryCollection implements Operation
                 return $this->authorize;
             }
 
-            return '@canModel(ability: "view")';
+            return '@canModel(ability: "viewAny")';
         }
 
         return '';
@@ -59,7 +59,7 @@ class QueryCollection implements Operation
 
         return <<<ENDDATA
         extend type Query $directives {
-            {$this->getName()} $filters: {$this->getReturnType()} {$this->query}
+            {$this->getName()} $filters: {$this->getReturnType()} {$this->getAuthorize()} {$this->query}
         }
         ENDDATA;
     }
