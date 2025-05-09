@@ -37,7 +37,7 @@ class Query implements Operation
                 return $this->authorize;
             }
 
-            if($this->authorize){
+            if ($this->authorize) {
                 return '@canFind(ability: "view", find: "id")';
             }
         }
