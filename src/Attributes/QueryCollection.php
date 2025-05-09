@@ -37,7 +37,10 @@ class QueryCollection implements Operation
                 return $this->authorize;
             }
 
-            return '@canModel(ability: "viewAny")';
+            if($this->authorize){
+                return '@canModel(ability: "viewAny")';
+            }
+
         }
 
         return '';
