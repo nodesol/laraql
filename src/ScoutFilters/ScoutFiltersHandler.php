@@ -33,6 +33,8 @@ class ScoutFiltersHandler
         }
 
         $filters = $this->getFilters($scoutFilters);
+
+        /** @phpstan-ignore staticMethod.notFound  */
         $scoutBuilder = $model::search('', function ($index, $query, $options) use ($filters, $model) {
             if ($filters) {
                 $options['filter'] = trim($filters);
@@ -42,11 +44,8 @@ class ScoutFiltersHandler
 
             return $index->rawSearch($query, $options);
         });
-        // \Log::info($scoutBuilder->raw());
         $hits = $scoutBuilder->raw();
         $ids = array_column($hits['hits'], 'id');
-        // $ids = collect($hits['hits'])->pluck('id');
-        // $ids = $scoutBuilder->get()->pluck('id');
 
         $builder->whereIn($model->getKeyName(), $ids);
     }
@@ -56,7 +55,6 @@ class ScoutFiltersHandler
         $filter = '';
 
         if ($andConnectedConditions = $scoutFilters['AND'] ?? null) {
-            // // @phpstan-ignore-next-line forwarding to Builder
             $andFilters = [];
             foreach ($andConnectedConditions as $condition) {
                 $andFilters[] = '('.$this->getFilters($condition).')';
@@ -65,7 +63,6 @@ class ScoutFiltersHandler
         }
 
         if ($orConnectedConditions = $scoutFilters['OR'] ?? null) {
-            // // @phpstan-ignore-next-line forwarding to Builder
             $orFilters = [];
             foreach ($orConnectedConditions as $condition) {
                 $orFilters[] = '('.$this->getFilters($condition).')';

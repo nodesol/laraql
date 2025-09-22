@@ -27,6 +27,7 @@ abstract class ScoutFiltersBaseDirective extends BaseDirective implements ArgBui
     /**
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Relations\Relation<\Illuminate\Database\Eloquent\Model>  $builder  the builder used to resolve the field
      * @param  array<string, mixed>  $value  the client given value of the argument
+     * @phpstan-ignore generics.lessTypes
      */
     protected function handle(QueryBuilder|EloquentBuilder|Relation $builder, array $value): void
     {

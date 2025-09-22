@@ -80,7 +80,7 @@ GRAPHQL;
     {
         $column = $scoutFilters['column'] ?? '';
         $value = $scoutFilters['value'] ?? '';
-        $exploded_value = explode(',', $value) ?? [];
+        $exploded_value = explode(',', $value);
 
         // Some operators require calling Laravel's conditions in different ways
         $operator = $scoutFilters['operator'];

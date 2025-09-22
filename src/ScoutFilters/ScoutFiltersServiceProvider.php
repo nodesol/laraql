@@ -20,7 +20,8 @@ class ScoutFiltersServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(Operator::class, match (config('scout.driver', 'meilisearch')) {
-            'meilisearch' => MeilisearchOperator::class
+            'meilisearch' => MeilisearchOperator::class,
+            default => MeilisearchOperator::class,
         });
     }
 
