@@ -14,6 +14,7 @@ class QueryCollection implements Operation
         public ?string $return_type = null,
         public ?array $directives = [],
         public ?array $filters = ['where: _ @whereConditions(column: {})', 'first: Int! = 10', 'page: Int', 'orderBy: _ @orderBy'],
+        public ?array $filters_override = [],
         public ?string $query = '@paginate(defaultCount: 10)',
         public bool|string|null $authorize = null,
     ) {
@@ -52,7 +53,7 @@ class QueryCollection implements Operation
         $filters = '';
 
         if (is_array($this->filters) && count($this->filters)) {
-            $filters = implode(" \n ", $this->filters);
+            $filters = $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? [] ));
             $filters = <<<ENDDATA
                 (
                     $filters

@@ -14,6 +14,7 @@ class Query implements Operation
         public ?string $return_type = null,
         public ?array $directives = [],
         public ?array $filters = ['id: ID @eq'],
+        public ?array $filters_override = [],
         public ?string $query = '@find',
         public bool|string|null $authorize = null,
     ) {
@@ -47,8 +48,8 @@ class Query implements Operation
 
     public function getSchema(): string
     {
-        $directives = implode(' ', $this->directives);
-        $filters = implode(" \n ", $this->filters);
+        $directives = implode(' ', $this->directives ?? []);
+        $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? [] ));
         if (count($this->filters)) {
             $filters = "(\n $filters \n)";
         }
