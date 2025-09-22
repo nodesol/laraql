@@ -49,7 +49,7 @@ class Query implements Operation
     public function getSchema(): string
     {
         $directives = implode(' ', $this->directives ?? []);
-        $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? [] ));
+        $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? []));
         if (count($this->filters)) {
             $filters = "(\n $filters \n)";
         }

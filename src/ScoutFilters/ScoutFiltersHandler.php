@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nodesol\LaraQL\ScoutFilters;
 
@@ -6,7 +8,6 @@ use GraphQL\Error\Error;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Builder;
-
 
 class ScoutFiltersHandler
 {
@@ -38,6 +39,7 @@ class ScoutFiltersHandler
             }
             $options['limit'] = config('scout.'.config('scout.driver').'.index-settings.'.get_class($model).'.pagination.maxTotalHits', 100000);
             $options['attributesToRetrieve'] = ['id'];
+
             return $index->rawSearch($query, $options);
         });
         // \Log::info($scoutBuilder->raw());
@@ -49,32 +51,33 @@ class ScoutFiltersHandler
         $builder->whereIn($model->getKeyName(), $ids);
     }
 
-    protected function getFilters($scoutFilters) {
-        $filter = "";
+    protected function getFilters($scoutFilters)
+    {
+        $filter = '';
 
         if ($andConnectedConditions = $scoutFilters['AND'] ?? null) {
             // // @phpstan-ignore-next-line forwarding to Builder
             $andFilters = [];
             foreach ($andConnectedConditions as $condition) {
-                $andFilters[] = '(' . $this->getFilters($condition) . ')';
+                $andFilters[] = '('.$this->getFilters($condition).')';
             }
-            $filter .= " " . implode(' AND ', $andFilters) . " ";
+            $filter .= ' '.implode(' AND ', $andFilters).' ';
         }
 
         if ($orConnectedConditions = $scoutFilters['OR'] ?? null) {
             // // @phpstan-ignore-next-line forwarding to Builder
             $orFilters = [];
             foreach ($orConnectedConditions as $condition) {
-                $orFilters[] = '(' . $this->getFilters($condition) . ')';
+                $orFilters[] = '('.$this->getFilters($condition).')';
             }
-            $filter .= " " . implode(' OR ', $orFilters) . " ";
+            $filter .= ' '.implode(' OR ', $orFilters).' ';
         }
 
         if ($column = $scoutFilters['column'] ?? null) {
             $this->assertValidColumnReference($column);
-            $filter .= " " . $this->operator->applyConditions($scoutFilters) . " ";
-        } elseif($scoutFilters['operator'] == "FUNC") {
-            $filter .= " " . $this->operator->applyConditions($scoutFilters) . " ";
+            $filter .= ' '.$this->operator->applyConditions($scoutFilters).' ';
+        } elseif ($scoutFilters['operator'] == 'FUNC') {
+            $filter .= ' '.$this->operator->applyConditions($scoutFilters).' ';
         }
 
         return $filter;
