@@ -16,8 +16,8 @@ class MeilisearchOperator implements Operator
     public function enumDefinition(): string
     {
         return /** @lang GraphQL */ <<<'GRAPHQL'
-"The available SQL operators that are used to filter query results."
-enum SQLOperator {
+"The available Meilisearch operators that are used to filter query results."
+enum MeilisearchOperator {
     "Equal operator (`=`)"
     EQ @enum(value: "=")
 
