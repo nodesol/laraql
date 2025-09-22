@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nodesol\LaraQL\ScoutFilters;
 
@@ -44,7 +46,7 @@ abstract class ScoutFiltersBaseDirective extends BaseDirective implements ArgBui
         $this->validateMutuallyExclusiveArguments(['columns', 'columnsEnum']);
 
         if ($this->hasAllowedColumns()) {
-            $restrictedScoutFiltersName = ASTHelper::qualifiedArgType($argDefinition, $parentField, $parentType) . $this->generatedInputSuffix();
+            $restrictedScoutFiltersName = ASTHelper::qualifiedArgType($argDefinition, $parentField, $parentType).$this->generatedInputSuffix();
             $argDefinition->type = Parser::namedType($restrictedScoutFiltersName);
             $allowedColumnsEnumName = $this->generateColumnsEnum($documentAST, $argDefinition, $parentField, $parentType);
 

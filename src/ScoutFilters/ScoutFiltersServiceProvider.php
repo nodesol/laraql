@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nodesol\LaraQL\ScoutFilters;
 
@@ -13,12 +15,11 @@ use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
 
 class ScoutFiltersServiceProvider extends ServiceProvider
 {
-
     public const DEFAULT_SCOUT_FILTERS = 'ScoutFilters';
 
     public function register(): void
     {
-        $this->app->bind(Operator::class, match(config('scout.driver', 'meilisearch')){
+        $this->app->bind(Operator::class, match (config('scout.driver', 'meilisearch')) {
             'meilisearch' => MeilisearchOperator::class
         });
     }

@@ -1,10 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\GraphQL\ScoutFilters;
 
 use GraphQL\Error\Error;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class MeilisearchOperator implements Operator
 {
@@ -76,18 +76,19 @@ GRAPHQL;
         return 'EQ';
     }
 
-    public function applyConditions(array $scoutFilters): String
+    public function applyConditions(array $scoutFilters): string
     {
-        $column = $scoutFilters['column'] ?? "";
-        $value = $scoutFilters['value'] ?? "";
-        $exploded_value = explode(",", $value) ?? [];
+        $column = $scoutFilters['column'] ?? '';
+        $value = $scoutFilters['value'] ?? '';
+        $exploded_value = explode(',', $value) ?? [];
 
         // Some operators require calling Laravel's conditions in different ways
         $operator = $scoutFilters['operator'];
-        return match($operator) {
+
+        return match ($operator) {
             'EXISTS', 'NOT EXISTS', 'IS EMPTY', 'IS NOT EMPTY', 'IS NULL', 'IS NOT NULL' => "$column $operator",
             'IN', 'NOT IN' => "$column $operator [$value]",
-            'TO' => $column. " " . $exploded_value[0]. " TO " . $exploded_value[1],
+            'TO' => $column.' '.$exploded_value[0].' TO '.$exploded_value[1],
             'FUNC' => $value,
             default => "$column $operator $value"
         };

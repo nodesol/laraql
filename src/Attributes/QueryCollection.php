@@ -53,7 +53,7 @@ class QueryCollection implements Operation
         $filters = '';
 
         if (is_array($this->filters) && count($this->filters)) {
-            $filters = $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? [] ));
+            $filters = $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? []));
             $filters = <<<ENDDATA
                 (
                     $filters
