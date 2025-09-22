@@ -2,6 +2,21 @@
 
 All notable changes to `LaraQL` will be documented in this file.
 
+## v1.0.9 - 2025-09-22
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.3.0 to 2.4.0 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/2
+* Bump aglipanci/laravel-pint-action from 2.5 to 2.6 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/4
+* Added Filter Overrides for Query and Query Collection
+* Added ScoutFilters similar to WhereConditions
+
+### New Contributors
+
+* @dependabot[bot] made their first contribution in https://github.com/nodesol/laraql/pull/2
+
+**Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.8...v1.0.9
+
 ## v1.0.8 - 2025-05-09
 
 **Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.7...v1.0.8
