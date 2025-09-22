@@ -25,7 +25,6 @@ interface Operator
      *
      *
      * @param  array<string, mixed>  $scoutFilters
-     * @return String
      */
     public function applyConditions(array $scoutFilters): string;
 }
