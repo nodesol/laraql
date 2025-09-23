@@ -7,6 +7,7 @@ namespace Nodesol\LaraQL\ScoutFilters;
 use GraphQL\Error\Error;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Nuwave\Lighthouse\Execution\ResolveInfo;
 
 class ScoutFiltersHandler
 {
@@ -31,20 +32,23 @@ class ScoutFiltersHandler
             $model = $builder->getModel();
         }
 
-        $filters = $this->getFilters($scoutFilters);
+        $filters = "";
+        if(isset($scoutFilters['filters'])){
+            $filters = $this->getFilters($scoutFilters['filters']);
+        }
 
         /** @phpstan-ignore staticMethod.notFound  */
-        $scoutBuilder = $model::search('', function ($index, $query, $options) use ($filters, $model) {
+        $scoutBuilder = $model::search($scoutFilters['search'] ?? '', function ($index, $query, $options) use ($filters, $model) {
             if ($filters) {
                 $options['filter'] = trim($filters);
             }
             $options['limit'] = config('scout.'.config('scout.driver').'.index-settings.'.get_class($model).'.pagination.maxTotalHits', 100000);
-            $options['attributesToRetrieve'] = ['id'];
+            $options['attributesToRetrieve'] = [$model->getKeyName()];
 
             return $index->rawSearch($query, $options);
         });
         $hits = $scoutBuilder->raw();
-        $ids = array_column($hits['hits'], 'id');
+        $ids = array_column($hits['hits'], $model->getKeyName());
 
         $builder->whereIn($model->getKeyName(), $ids);
     }

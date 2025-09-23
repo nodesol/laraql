@@ -54,6 +54,14 @@ abstract class ScoutFiltersBaseDirective extends BaseDirective implements ArgBui
 
             $documentAST
                 ->setTypeDefinition(
+                    ScoutFiltersServiceProvider::createScoutFiltersConditionInputType(
+                        $restrictedScoutFiltersName,
+                        "Dynamic Scout Filters for the `{$argDefinition->name->value}` argument of the query `{$parentField->name->value}`.",
+                        $allowedColumnsEnumName,
+                    ),
+                );
+            $documentAST
+                ->setTypeDefinition(
                     ScoutFiltersServiceProvider::createScoutFiltersInputType(
                         $restrictedScoutFiltersName,
                         "Dynamic Scout Filters for the `{$argDefinition->name->value}` argument of the query `{$parentField->name->value}`.",

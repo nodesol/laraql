@@ -33,6 +33,13 @@ class ScoutFiltersServiceProvider extends ServiceProvider
 
             $documentAST = $manipulateAST->documentAST;
             $documentAST->setTypeDefinition(
+                static::createScoutFiltersConditionInputType(
+                    static::DEFAULT_SCOUT_FILTERS,
+                    'Dynamic Scout Filters for queries.',
+                    'String',
+                ),
+            );
+            $documentAST->setTypeDefinition(
                 static::createScoutFiltersInputType(
                     static::DEFAULT_SCOUT_FILTERS,
                     'Dynamic Scout Filters for queries.',
@@ -56,6 +63,19 @@ class ScoutFiltersServiceProvider extends ServiceProvider
     public static function createScoutFiltersInputType(string $name, string $description, string $columnType): InputObjectTypeDefinitionNode
     {
 
+        return Parser::inputObjectTypeDefinition(/** @lang GraphQL */ <<<GRAPHQL
+            "{$description}"
+            input {$name} {
+                search: String
+                filters: {$name}Condition
+            }
+GRAPHQL
+        );
+    }
+    
+    public static function createScoutFiltersConditionInputType(string $name, string $description, string $columnType): InputObjectTypeDefinitionNode
+    {
+
         $operator = Container::getInstance()->make(Operator::class);
 
         $operatorName = Parser::enumTypeDefinition(
@@ -67,7 +87,7 @@ class ScoutFiltersServiceProvider extends ServiceProvider
 
         return Parser::inputObjectTypeDefinition(/** @lang GraphQL */ <<<GRAPHQL
             "{$description}"
-            input {$name} {
+            input {$name}Condition {
                 "The column that is used for the condition."
                 column: {$columnType}
 
@@ -78,10 +98,10 @@ class ScoutFiltersServiceProvider extends ServiceProvider
                 value: Mixed
 
                 "A set of conditions that requires all conditions to match."
-                AND: [{$name}!]
+                AND: [{$name}Condition!]
 
                 "A set of conditions that requires at least one condition to match."
-                OR: [{$name}!]
+                OR: [{$name}Condition!]
             }
 GRAPHQL
         );
