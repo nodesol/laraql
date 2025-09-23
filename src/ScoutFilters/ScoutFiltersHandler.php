@@ -7,7 +7,6 @@ namespace Nodesol\LaraQL\ScoutFilters;
 use GraphQL\Error\Error;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Nuwave\Lighthouse\Execution\ResolveInfo;
 
 class ScoutFiltersHandler
 {
@@ -32,8 +31,8 @@ class ScoutFiltersHandler
             $model = $builder->getModel();
         }
 
-        $filters = "";
-        if(isset($scoutFilters['filters'])){
+        $filters = '';
+        if (isset($scoutFilters['filters'])) {
             $filters = $this->getFilters($scoutFilters['filters']);
         }
 

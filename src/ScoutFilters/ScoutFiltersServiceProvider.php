@@ -72,7 +72,7 @@ class ScoutFiltersServiceProvider extends ServiceProvider
 GRAPHQL
         );
     }
-    
+
     public static function createScoutFiltersConditionInputType(string $name, string $description, string $columnType): InputObjectTypeDefinitionNode
     {
 
