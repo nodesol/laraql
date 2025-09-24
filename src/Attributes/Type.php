@@ -3,6 +3,7 @@
 namespace Nodesol\LaraQL\Attributes;
 
 use Nodesol\LaraQL\Types\ColumnTypes;
+use Nuwave\Lighthouse\Pagination\PaginatorField;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 class Type
@@ -55,10 +56,11 @@ class Type
 
     public function getPaginatorSchema()
     {
+        $field_class = addslashes(PaginatorField::class);
         return ! $this->create_paginator ? '' : <<<PAGINATOR
             type {$this->getName()}Paginator {
-                paginatorInfo: PaginatorInfo!
-                data: [{$this->getName()}!]!
+                paginatorInfo: PaginatorInfo! @field(resolver: "{$field_class}@paginatorInfoResolver")
+                data: [{$this->getName()}!]!  @field(resolver: "{$field_class}@dataResolver")
             }
         PAGINATOR;
     }
