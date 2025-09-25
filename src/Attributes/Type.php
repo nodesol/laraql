@@ -57,6 +57,7 @@ class Type
     public function getPaginatorSchema()
     {
         $field_class = addslashes(PaginatorField::class);
+
         return ! $this->create_paginator ? '' : <<<PAGINATOR
             type {$this->getName()}Paginator {
                 paginatorInfo: PaginatorInfo! @field(resolver: "{$field_class}@paginatorInfoResolver")
