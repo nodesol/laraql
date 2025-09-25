@@ -52,7 +52,7 @@ class ScoutFiltersHandler
         $builder->whereIn($model->getKeyName(), $ids);
     }
 
-    protected function getFilters($scoutFilters)
+    public function getFilters($scoutFilters)
     {
         $filter = '';
 
