@@ -17,7 +17,7 @@ async function loadComponents(path, components) {
     })
 
     initMobileMenu();
-    initSearch();
+    initSearch(path);
 }
 
 /**
@@ -101,13 +101,13 @@ function toggleSearch(forceClose = false) {
 
 let searchData = [];
 
-async function initSearch() {
+async function initSearch(path) {
     const modal = document.getElementById('search-modal');
     const input = document.getElementById('search-input');
     const resultsContainer = document.getElementById('search-results');
 
     try {
-        const response = await fetch('search-index.json');
+        const response = await fetch(`${path}search-index.json`);
         searchData = await response.json();
     } catch (e) { console.error("Search index failed to load"); }
 
