@@ -38,10 +38,10 @@
         /* When Mobile Menu is Active */
         #sidebar.mobile-active {
             position: fixed !important;
-            top: 0 !important;
+            top: 16 !important;
             height: 100vh !important;
             width: 100% !important;
-            z-index: 70 !important; /* Higher than everything */
+            z-index: 40 !important; /* Higher than everything */
             display: block !important;
         }
     </style>
@@ -124,108 +124,10 @@ class Article extends Model
         </div>
     </div>
 
-    <!-- Script to load external components -->
+    <script type="text/javascript" src="script.js"></script>
     <script>
-        /**
-         * 1. COMPONENT LOADER
-         * Fetches nav.html and footer.html and injects them into the page.
-         */
-        async function loadComponents() {
-            try {
-                // Load Navbar/Sidebar
-                const navResponse = await fetch('includes/nav.html');
-                if (navResponse.ok) {
-                    document.getElementById('nav-placeholder').innerHTML = await navResponse.text();
-                    // Initialize interactions ONLY after HTML is injected
-                    initMobileMenu();
-                    initSearch();
-                }
-
-                // Load Footer
-                const footerResponse = await fetch('includes/footer.html');
-                if (footerResponse.ok) {
-                    document.getElementById('footer-placeholder').innerHTML = await footerResponse.text();
-                }
-            } catch (error) {
-                console.error("Error loading components:", error);
-            }
-        }
-
-        /**
-         * 2. MOBILE HAMBURGER LOGIC
-         * Handles opening/closing the sidebar on small screens.
-         */
-        function initMobileMenu() {
-            const menuBtn = document.getElementById('mobile-menu-button');
-            const sidebar = document.getElementById('sidebar');
-
-            if (menuBtn && sidebar) {
-                menuBtn.addEventListener('click', () => {
-                    // Toggle our custom mobile class
-                    sidebar.classList.toggle('mobile-active');
-                    
-                    // Toggle overflow on body to prevent background scrolling when menu is open
-                    document.body.classList.toggle('overflow-hidden');
-
-                    // Swap Icon
-                    const icon = menuBtn.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('fa-bars');
-                        icon.classList.toggle('fa-xmark');
-                    }
-                });
-            }
-        }
-
-        /**
-         * 3. SUB-MENU TOGGLE (ATTRIBUTES)
-         * This is global so it can be called by the 'onclick' attributes in nav.html
-         */
-        function toggleSubMenu(menuId, chevronId) {
-            const menu = document.getElementById(menuId);
-            const chevron = document.getElementById(chevronId);
-            
-            if (menu) menu.classList.toggle('hidden');
-            if (chevron) chevron.classList.toggle('rotate-180');
-        }
-
-        /**
-         * 4. SEARCH MODAL LOGIC
-         * Handles Cmd+K / Ctrl+K and the visual trigger.
-         */
-        function initSearch() {
-            const modal = document.getElementById('search-modal');
-            const trigger = document.getElementById('search-trigger');
-            const input = document.getElementById('search-input');
-
-            const openSearch = () => {
-                modal?.classList.remove('hidden');
-                input?.focus();
-            };
-
-            const closeSearch = () => {
-                modal?.classList.add('hidden');
-            };
-
-            // Click trigger
-            trigger?.addEventListener('click', openSearch);
-
-            // Keyboard Shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Open on Cmd+K or Ctrl+K
-                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                    e.preventDefault();
-                    openSearch();
-                }
-                // Close on ESC
-                if (e.key === 'Escape') {
-                    closeSearch();
-                }
-            });
-        }
-
         // RUN ON LOAD
-        window.onload = loadComponents;
+        window.onload = loadComponents('./', ['nav', 'footer']);
     </script>
 </body>
 </html>

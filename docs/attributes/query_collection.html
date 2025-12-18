@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <style>
-        @import url('fonts.googleapis.com');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
         
         body { font-family: 'Inter', sans-serif; }
         code, pre { font-family: 'Fira Code', monospace; }
+        .bg-gradient { background: linear-gradient(90deg,#FF0000, #6366f1);}
+        /* .gradient-text2 { background: linear-gradient(90deg,#FF0000, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } */
         .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
         
@@ -25,6 +27,23 @@
         .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
         
         section { scroll-margin-top: 6rem; }
+
+        /* Ensure Sidebar starts below the Navbar on Desktop */
+        #sidebar {
+            top: 4rem; /* Match the h-16 (64px) height of your navbar */
+            height: calc(100vh - 4rem);
+            z-index: 40; /* Lower than navbar (50) */
+        }
+
+        /* When Mobile Menu is Active */
+        #sidebar.mobile-active {
+            position: fixed !important;
+            top: 16 !important;
+            height: 100vh !important;
+            width: 100% !important;
+            z-index: 40 !important; /* Higher than everything */
+            display: block !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
@@ -335,19 +354,25 @@ class Article extends Model
         </main>
     </div>
 
-    <!-- Script to load external components -->
-    <script>
-        async function loadComponent(id, file) {
-            const element = document.getElementById(id);
-            const response = await fetch(file);
-            element.innerHTML = await response.text();
-        }
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleSearch()"></div>
+        <div class="relative max-w-2xl mx-auto mt-20 px-4">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+                <div class="flex items-center p-4 border-b">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
+                    <input type="text" id="search-input" placeholder="Search documentation..." class="w-full outline-none text-lg">
+                    <kbd class="text-xs border px-1.5 py-0.5 rounded bg-slate-50">ESC</kbd>
+                </div>
+                <div class="p-8 text-center text-slate-500">Start typing to search...</div>
+            </div>
+        </div>
+    </div>
 
-        window.onload = () => {
-            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
-            loadComponent('nav-placeholder', '../includes/nav.html');
-            loadComponent('footer-placeholder', '../includes/footer.html');
-        };
+    <script type="text/javascript" src="../script.js"></script>
+    <script>
+        // RUN ON LOAD
+        window.onload = loadComponents('../', ['nav', 'footer']);
     </script>
 </body>
 </html>
