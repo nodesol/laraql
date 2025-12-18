@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-        
+
         body { font-family: 'Inter', sans-serif; }
         code, pre { font-family: 'Fira Code', monospace; }
         .bg-gradient { background: linear-gradient(90deg,#FF0000, #6366f1);}
         /* .gradient-text2 { background: linear-gradient(90deg,#FF0000, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } */
         .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
-        
+
         /* Tree Menu Styles (Must remain here or in an external CSS file) */
         .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
         .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
@@ -25,7 +25,7 @@
         .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
         .sub-item:hover { color: #6366f1; }
         .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
-        
+
         section { scroll-margin-top: 6rem; }
 
         /* Ensure Sidebar starts below the Navbar on Desktop */
@@ -55,16 +55,16 @@
     <div class="flex pt-16 max-w-8xl mx-auto">
         <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
         <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
-            
+
 
 
             <!-- The #[Model] Attribute -->
             <section id="model-attribute" class="mb-16 scroll-mt-24">
                 <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Model]</code> Attribute</h2>
                 <p class=" mb-4">When you tag an Eloquent model with <code>#[Model]</code>, LaraQL creates an entire CRUD suite automatically.</p>
-                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+                <pre><code>use Nodesol\LaraQL\Attributes\Model as ModelAttribute;
 
-#[Model()]
+#[ModelAttribute()]
 class Article extends Model
 {
     protected array $fillables = [
@@ -122,8 +122,8 @@ class Article extends Model
             <section id="operations" class="mb-20">
                 <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Operations</h2>
                 <p class="mb-6 text-slate-600 leading-relaxed">
-                    The <code>#[Model]</code> attribute can fully customize each underlaying attribute used to generate the sdl using arguments. 
-                    The <code>#[Model]</code> accepts an <strong>operations</strong> attribute that allows the customization of the query, query-collection, create, delete, and update mutation. 
+                    The <code>#[Model]</code> attribute can fully customize each underlaying attribute used to generate the sdl using arguments.
+                    The <code>#[Model]</code> accepts an <strong>operations</strong> attribute that allows the customization of the query, query-collection, create, delete, and update mutation.
                 </p>
                 <pre><code>use Nodesol\LaraQL\Attributes\Model;
 
@@ -141,8 +141,8 @@ class Article extends Model
     public string $title;
 }</code></pre>
                 <p class="mt-5">
-                    Please see 
-                    <a href="/laraql/attributes/query.html"><code>#[Query]</code></a>, 
+                    Please see
+                    <a href="/laraql/attributes/query.html"><code>#[Query]</code></a>,
                     <a href="/laraql/attributes/querycollection.html"><code>#[QueryCollection]</code></a>, and
                     <a href="/laraql/attributes/mutation.html"><code>#[Mutation]</code></a>
                     attributes to see how they can be configured
@@ -207,7 +207,7 @@ class Article extends Model
             <section id="authorization" class="mb-20">
                 <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Authorization</h2>
                 <p class="mb-6 text-slate-600 leading-relaxed">
-                    The <code>#[Model]</code> require authorization on all the queries and mutations by using the <strong>authorize</strong> argument. 
+                    The <code>#[Model]</code> require authorization on all the queries and mutations by using the <strong>authorize</strong> argument.
                     You can simply set the authorize value to true to use the default Laravel Policy for the model and the default methods (view, viewAny, create, update, delete)
                     for the corresponding queries and mutations.
                 </p>
@@ -223,7 +223,7 @@ class Article extends Model
             </section>
 
             <!-- Naming Conventions -->
-            
+
 
             <!-- Footer Injection Point -->
             <div id="footer-placeholder"></div>
@@ -240,7 +240,7 @@ class Article extends Model
                     <input type="text" id="search-input" placeholder="Search documentation..." class="w-full outline-none text-lg">
                     <kbd class="text-xs border px-1.5 py-0.5 rounded bg-slate-50">ESC</kbd>
                 </div>
-                
+
                 <div id="search-results" class="p-4 max-h-[400px] overflow-y-auto">
                     <p class="text-sm text-slate-500 italic text-center py-4">Start typing to search LaraQL docs...</p>
                 </div>
