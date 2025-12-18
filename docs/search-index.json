@@ -1,0 +1,42 @@
+[
+  { "title": "Introduction", "url": "/laraql/index.html#intro", "text": "Overview of LaraQL for effortless GraphQL integration in Laravel." },
+  { "title": "Installation", "url": "/laraql/index.html#installation", "text": "Step-by-step guide to installing LaraQL via Composer." },
+  { "title": "Configuration", "url": "/laraql/index.html#config", "text": "How to publish and customize LaraQL scan paths and settings." },
+  { "title": "Basic Usage", "url": "/laraql/index.html#usage", "text": "Getting started with PHP attributes to define your GraphQL schema." },
+  
+  { "title": "Model Attribute Overview", "url": "/laraql/attributes/model.html#model-attribute", "text": "Using the Model attribute to auto-generate types and mutations." },
+  { "title": "Model Operations", "url": "/laraql/attributes/model.html#operations", "text": "Configuring CRUD operations for specific Eloquent models." },
+  { "title": "Model Directives", "url": "/laraql/attributes/model.html#directives", "text": "Applying Lighthouse directives directly via the Model attribute." },
+  { "title": "Model Type Override", "url": "/laraql/attributes/model.html#type-override", "text": "Customizing the generated GraphQL Type for a model." },
+  { "title": "Model Input Override", "url": "/laraql/attributes/model.html#input-override", "text": "Customizing the generated GraphQL Input for a model." },
+  { "title": "Model Authorization", "url": "/laraql/attributes/model.html#authorization", "text": "Securing model queries and mutations with Laravel Policies." },
+
+  { "title": "Type Attribute Overview", "url": "/laraql/attributes/type.html#type-attribute", "text": "Defining custom GraphQL Object Types using PHP attributes." },
+  { "title": "Type Name", "url": "/laraql/attributes/type.html#name", "text": "Explicitly naming your GraphQL types." },
+  { "title": "Type Paginator", "url": "/laraql/attributes/type.html#paginator", "text": "Configuring pagination styles for types." },
+  { "title": "Type Columns", "url": "/laraql/attributes/type.html#columns", "text": "Defining which model columns are exposed in the type." },
+  { "title": "Type Columns Override", "url": "/laraql/attributes/type.html#columns-override", "text": "Selectively overriding specific column definitions." },
+  { "title": "Type Extended Type", "url": "/laraql/attributes/type.html#extended-type", "text": "Extending existing GraphQL types with new fields." },
+
+  { "title": "Input Attribute Overview", "url": "/laraql/attributes/input.html#input-attribute", "text": "Defining custom GraphQL Input types for mutations." },
+  { "title": "Input Name", "url": "/laraql/attributes/input.html#name", "text": "Setting custom names for GraphQL Input objects." },
+  { "title": "Input Inputs", "url": "/laraql/attributes/input.html#inputs", "text": "Defining fields available within the input object." },
+  { "title": "Input Inputs Override", "url": "/laraql/attributes/input.html#inputs-override", "text": "Overriding specific input field definitions." },
+
+  { "title": "Query Attribute Overview", "url": "/laraql/attributes/query.html#query-attribute", "text": "Defining single-record GraphQL queries via attributes." },
+  { "title": "Query Name", "url": "/laraql/attributes/query.html#name", "text": "Customizing the query name in the schema." },
+  { "title": "Query Return Type", "url": "/laraql/attributes/query.html#return-type", "text": "Specifying what type a query should return." },
+  { "title": "Query Directives", "url": "/laraql/attributes/query.html#directives", "text": "Applying middleware or resolver directives to queries." },
+  { "title": "Query Filters", "url": "/laraql/attributes/query.html#filters", "text": "Adding where clauses and filtering to your queries." },
+  { "title": "Query Query Implementation", "url": "/laraql/attributes/query.html#query", "text": "Defining custom resolver logic for queries." },
+
+  { "title": "QueryCollection", "url": "/laraql/attributes/query_collection.html", "text": "Handling lists, pagination, and sorting for multiple records." },
+  { "title": "QueryCollection Pagination", "url": "/laraql/attributes/query_collection.html#pagination", "text": "Configuring Paginator or Simple Paginator." },
+  { "title": "QueryCollection Filtering", "url": "/laraql/attributes/query_collection.html#filtering", "text": "Advanced filtering for collections." },
+  { "title": "QueryCollection Sorting", "url": "/laraql/attributes/query_collection.html#sorting", "text": "Defining sortable columns for collection queries." },
+  { "title": "QueryCollection Scout Support", "url": "/laraql/attributes/query_collection.html#scout-support", "text": "Integrating Laravel Scout for full-text search." },
+
+  { "title": "Mutation Attribute", "url": "/laraql/attributes/mutation.html#mutation-attribute", "text": "Creating, Updating, and Deleting data via GraphQL mutations." },
+  
+  { "title": "Credits", "url": "/laraql/index.html#credits", "text": "LaraQL credits and information about the Lighthouse PHP engine." }
+]
