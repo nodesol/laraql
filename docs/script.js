@@ -142,7 +142,6 @@ async function initSearch() {
     input?.addEventListener('input', async (e) => {
         // console.log(e.target.value.toLowerCase())
         const query = e.target.value.toLowerCase();
-        console.log(query.length)
         
         // Ensure this doesn't block the rest of the script
         if (query.length < 2) {
