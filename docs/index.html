@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <style>
-        @import url('fonts.googleapis.com');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
         
         body { font-family: 'Inter', sans-serif; }
         code, pre { font-family: 'Fira Code', monospace; }
+        .bg-gradient { background: linear-gradient(90deg,#FF0000, #6366f1);}
+        /* .gradient-text2 { background: linear-gradient(90deg,#FF0000, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } */
         .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
         
@@ -25,6 +27,23 @@
         .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
         
         section { scroll-margin-top: 6rem; }
+
+        /* Ensure Sidebar starts below the Navbar on Desktop */
+        #sidebar {
+            top: 4rem; /* Match the h-16 (64px) height of your navbar */
+            height: calc(100vh - 4rem);
+            z-index: 40; /* Lower than navbar (50) */
+        }
+
+        /* When Mobile Menu is Active */
+        #sidebar.mobile-active {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 100% !important;
+            z-index: 70 !important; /* Higher than everything */
+            display: block !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
@@ -38,8 +57,10 @@
         <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
             
             <section id="intro" class="mb-20">
-                <h1 class="text-5xl font-extrabold mb-6 tracking-tight">GraphQL, meet <span class="gradient-text">Laravel.</span></h1>
+                <h1 class="text-5xl font-extrabold mb-6 tracking-tight"><span class="text-red-600">Laravel</span>, meet <span class="gradient-text">GraphQL</span>.</h1>
                 <p class="text-xl text-slate-600 leading-relaxed mb-8">LaraQL enables you to effortlessly integrate GraphQL into your Laravel application using native PHP attributes. Published in 2025 for modern developer workflows.</p>
+                <p class="text-xl text-slate-600 leading-relaxed mb-8">LaraQL uses Code-First Discovery. Instead of maintaining a separate .graphql file, your PHP classes become the source of truth. LaraQL scans these classes and generates the SDL for Lighthouse on the fly.</p>
+                
             </section>
 
             <section id="installation" class="mb-20">
@@ -57,7 +78,7 @@
             <section id="usage" class="mb-20">
                 <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Basic Usage</h2>
                 <p class="mb-6 text-slate-600 leading-relaxed">
-                    The <code>#[Model]</code> attribute tells LaraQL that this class should be part of the GraphQL schema. 
+                    The <code>#[Model()]</code> attribute tells LaraQL that this class should be part of the GraphQL schema. 
                     LaraQL will automatically generate the necessary schema to create a <strong>Type</strong>, <strong>Input</strong>, 
                     two <strong>Queries</strong> (single/multiple), and <strong>Mutations</strong> (create/update/delete).
                 </p>
@@ -70,20 +91,11 @@ class Article extends Model
 }</code></pre>
             </section>
 
-            <section id="schema-intro" class="mb-16 scroll-mt-24">
-                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block">Core Concepts</span>
-                <h1 class="text-4xl lg:text-5xl font-extrabold mb-6 tracking-tight">Schema Basics</h1>
-                <p class="text-xl text-slate-600 leading-relaxed">
-                    LaraQL uses **Code-First Discovery**. Instead of maintaining a separate <code>.graphql</code> file, 
-                    your PHP classes become the source of truth. LaraQL scans these classes and generates the SDL for Lighthouse on the fly.
-                </p>
-            </section>
-
             <hr class="border-slate-200 my-20">
 
             <section id="credits" class="mb-20">
                 <div class="bg-indigo-600 rounded-3xl p-8 text-white flex flex-col md:flex-row items-center gap-8 shadow-xl shadow-indigo-100">
-                    <div class="text-4xl"><i class="fas fa-hands-helping"></i></div>
+                    <div class="text-4xl"><i class="fa-solid fa-handshake-angle"></i></div>
                     <div>
                         <h3 class="text-xl font-bold mb-2 text-white">Powered by Lighthouse PHP</h3>
                         <p class="text-indigo-100 mb-4 leading-relaxed">LaraQL uses the Lighthouse PHP engine to handle query execution. We provide the attribute-based discovery; they provide the world-class execution engine.</p>
@@ -97,19 +109,123 @@ class Article extends Model
         </main>
     </div>
 
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleSearch()"></div>
+        <div class="relative max-w-2xl mx-auto mt-20 px-4">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+                <div class="flex items-center p-4 border-b">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
+                    <input type="text" id="search-input" placeholder="Search documentation..." class="w-full outline-none text-lg">
+                    <kbd class="text-xs border px-1.5 py-0.5 rounded bg-slate-50">ESC</kbd>
+                </div>
+                <div class="p-8 text-center text-slate-500">Start typing to search...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Script to load external components -->
     <script>
-        async function loadComponent(id, file) {
-            const element = document.getElementById(id);
-            const response = await fetch(file);
-            element.innerHTML = await response.text();
+        /**
+         * 1. COMPONENT LOADER
+         * Fetches nav.html and footer.html and injects them into the page.
+         */
+        async function loadComponents() {
+            try {
+                // Load Navbar/Sidebar
+                const navResponse = await fetch('includes/nav.html');
+                if (navResponse.ok) {
+                    document.getElementById('nav-placeholder').innerHTML = await navResponse.text();
+                    // Initialize interactions ONLY after HTML is injected
+                    initMobileMenu();
+                    initSearch();
+                }
+
+                // Load Footer
+                const footerResponse = await fetch('includes/footer.html');
+                if (footerResponse.ok) {
+                    document.getElementById('footer-placeholder').innerHTML = await footerResponse.text();
+                }
+            } catch (error) {
+                console.error("Error loading components:", error);
+            }
         }
 
-        window.onload = () => {
-            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
-            loadComponent('nav-placeholder', 'includes/nav.html');
-            loadComponent('footer-placeholder', 'includes/footer.html');
-        };
+        /**
+         * 2. MOBILE HAMBURGER LOGIC
+         * Handles opening/closing the sidebar on small screens.
+         */
+        function initMobileMenu() {
+            const menuBtn = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+
+            if (menuBtn && sidebar) {
+                menuBtn.addEventListener('click', () => {
+                    // Toggle our custom mobile class
+                    sidebar.classList.toggle('mobile-active');
+                    
+                    // Toggle overflow on body to prevent background scrolling when menu is open
+                    document.body.classList.toggle('overflow-hidden');
+
+                    // Swap Icon
+                    const icon = menuBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-bars');
+                        icon.classList.toggle('fa-xmark');
+                    }
+                });
+            }
+        }
+
+        /**
+         * 3. SUB-MENU TOGGLE (ATTRIBUTES)
+         * This is global so it can be called by the 'onclick' attributes in nav.html
+         */
+        function toggleSubMenu(menuId, chevronId) {
+            const menu = document.getElementById(menuId);
+            const chevron = document.getElementById(chevronId);
+            
+            if (menu) menu.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
+        }
+
+        /**
+         * 4. SEARCH MODAL LOGIC
+         * Handles Cmd+K / Ctrl+K and the visual trigger.
+         */
+        function initSearch() {
+            const modal = document.getElementById('search-modal');
+            const trigger = document.getElementById('search-trigger');
+            const input = document.getElementById('search-input');
+
+            const openSearch = () => {
+                modal?.classList.remove('hidden');
+                input?.focus();
+            };
+
+            const closeSearch = () => {
+                modal?.classList.add('hidden');
+            };
+
+            // Click trigger
+            trigger?.addEventListener('click', openSearch);
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Open on Cmd+K or Ctrl+K
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    openSearch();
+                }
+                // Close on ESC
+                if (e.key === 'Escape') {
+                    closeSearch();
+                }
+            });
+        }
+
+        // RUN ON LOAD
+        window.onload = loadComponents;
     </script>
 </body>
 </html>
