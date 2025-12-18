@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Type] Attribute -->
+            <section id="mutation-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Mutation]</code> Attribute</h2>
+                <p class=" mb-4">
+                    When you add <code>#[Mutation]</code> attribute to a model or a class, LaraQL creates a GraphQL Mutation automatically.
+                </p>
+                <p class=" mb-4">
+                    <code>#[Mutation]</code> is very similar to <code>#[Query]</code> so please make sure to familiarize yourself with Queries first.
+                </p>
+                <p class=" mb-4">By default Lighhouse GraphQL package looks for mutations in the default namespace <code>App\GraphQL\Mutation</code></p>
+                <pre><code>namespace App\Models;
+                    
+use Nodesol\LaraQL\Attributes\{Type, Input, Mutation};
+use App\Models\User;
+
+#[Type()]
+#[Input()]
+#[Mutation(
+    name: "create"
+    query: "@create",
+    return_type: "User"
+    "inputs": [
+        "input" => "UserInput! @spread"
+    ]
+)]
+class User
+{}</code></pre>
+                <p class="mt-4 mb-4">Here is a bit more complex example performing login with a custom resolver</p>
+                <pre><code>namespace App\GraphQL\Mutations;
+                    
+use Nodesol\LaraQL\Attributes\{Type, Mutation};
+use App\Models\User;
+
+#[Type()]
+#[Mutation(
+    name: "login"
+    query: "@field(resolver:\"Auth@login\")",
+    return_type: "Auth"
+    "inputs": [
+        "email" => "String! @rules(apply:[\"required\", \"email\", \"in:users,email\"])"
+        "password" => "String! @rules(apply:[\"required\"]) @hash"
+    ]
+)]
+class Auth
+{
+    public function __construct(
+        public ?string $token = null,
+        public ?User $user = null,
+    ){}
+    public function login(mixed $rootValue, array $args) : Auth {
+        $user = User::find($args);
+        if(!$user){
+            throw new \Exception("Invalid Credentials", 401);
+        }
+        return new self(
+            token: $user->createToken("default")->plainTextToken,
+            user: $user,
+        );
+    }
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Arguments</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Argument</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">name</td>
+                                <td class="px-6 py-4 font-mono">The name of the mutation. The class name is automatically appended to the name you set</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">return_type</td>
+                                <td class="px-6 py-4 font-mono">Specifies the GraphQL Type that the mutation returns</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">directives</td>
+                                <td class="px-6 py-4 font-mono">The same directives as Query are supported here</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">inputs</td>
+                                <td class="px-6 py-4 font-mono">The inputs can be either an input object or a list of inputs similar to the Input Attribute</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">query</td>
+                                <td class="px-6 py-4 font-mono">The supported mutation queries are defined below</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">authorize</td>
+                                <td class="px-6 py-4 font-mono">Works similar to authorize in query except the defaults are changed based on the mutation name</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Query Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@create</td>
+                                <td class="px-6 py-4 font-mono">Handles the creation of a new model instance.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@delete</td>
+                                <td class="px-6 py-4 font-mono">Handles the deletion of a model instance.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@field</td>
+                                <td class="px-6 py-4 font-mono">Points to a custom resolver class or static method.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@method</td>
+                                <td class="px-6 py-4 font-mono">Calls a specific method on the model to resolve the mutation.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@update</td>
+                                <td class="px-6 py-4 font-mono">Handles the update of an existing model instance.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@upsert</td>
+                                <td class="px-6 py-4 font-mono">Creates or updates a record based on provided conditions.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@event</td>
+                                <td class="px-6 py-4 font-mono">Dispatches a Laravel event when the mutation is resolved.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>

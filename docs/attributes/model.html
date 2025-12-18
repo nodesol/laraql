@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Model] Attribute -->
+            <section id="model-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Model]</code> Attribute</h2>
+                <p class=" mb-4">When you tag an Eloquent model with <code>#[Model]</code>, LaraQL creates an entire CRUD suite automatically.</p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model()]
+class Article extends Model
+{
+    protected array $fillables = [
+        "title",
+        "content",
+    ];
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Generated Schema</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Name</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">GraphQL Entity</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">Article</td>
+                                <td class="px-6 py-4 font-mono">Type</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">ArticlePaginator</td>
+                                <td class="px-6 py-4 font-mono">Type</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">ArticleInput</td>
+                                <td class="px-6 py-4 font-mono">Input</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">article</td>
+                                <td class="px-6 py-4 font-mono">Query</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">articles</td>
+                                <td class="px-6 py-4 font-mono">Query</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">createArticle</td>
+                                <td class="px-6 py-4 font-mono">Mutation</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">updateArticle</td>
+                                <td class="px-6 py-4 font-mono">Mutation</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">deleteArticle</td>
+                                <td class="px-6 py-4 font-mono">Mutation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="operations" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Operations</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Model]</code> attribute can fully customize each underlaying attribute used to generate the sdl using arguments. 
+                    The <code>#[Model]</code> accepts an <strong>operations</strong> attribute that allows the customization of the query, query-collection, create, delete, and update mutation. 
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    operations: [
+        "query" => [],
+        "query_collection" => [],
+        "create" => [],
+        "delete" => [],
+        "update" => [],
+    ],
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+                <p class="mt-5">
+                    Please see 
+                    <a href="/attributes/query.html"><code>#[Query]</code></a>, 
+                    <a href="/attributes/querycollection.html"><code>#[QueryCollection]</code></a>, and
+                    <a href="/attributes/mutation.html"><code>#[Mutation]</code></a>
+                    attributes to see how they can be configured
+                </p>
+            </section>
+
+            <section id="directives" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Directives</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Model]</code> attribute can apply @guard, @model, and @namespace directive to all the queries and mutations automatically
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    directives: ["@guard"],
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+                <p class="mt-5"><strong>Note:</strong> Only @guard, @model directive and @namespce directive is supported</p>
+            </section>
+
+            <section id="type-override" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Type Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Model]</code> attribute can override the default type object by using the <b>type_override</b> argument
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    type_override: [
+        "name" => "String! @rename(attribute: \"title\")",
+    ],
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+                <p class="mt-5">Please see <a href="/attributes/type.html"><code>#[Type]</code></a> for more details</p>
+            </section>
+
+            <section id="input-override" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Input Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Model]</code> attribute can override the default input object by using the <b>input_override</b> argument
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    input_override: [
+        "title" => "String! @rules(apply: [\"required\", \"max:200\"])",
+    ],
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+                <p class="mt-5">Please see <a href="/attributes/input.html"><code>#[Input]</code></a> for more details</p>
+            </section>
+
+            <section id="authorization" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Authorization</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Model]</code> require authorization on all the queries and mutations by using the <strong>authorize</strong> argument. 
+                    You can simply set the authorize value to true to use the default Laravel Policy for the model and the default methods (view, viewAny, create, update, delete)
+                    for the corresponding queries and mutations.
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    authorize: true,
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+            </section>
+
+            <!-- Naming Conventions -->
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Basics | LaraQL Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; }
+        
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1rem; font-size: 0.875rem; color: #64748b; transition: all 0.2s; }
+        .sub-item:hover { color: #6366f1; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-8xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-1.5 rounded-lg"><i class="fas fa-project-diagram text-white text-sm"></i></div>
+                <span class="text-2xl font-black tracking-tight uppercase">Lara<span class="text-indigo-600">QL</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="github.com" target="_blank" class="text-slate-500 hover:text-slate-900 transition">
+                    <i class="fab fa-github text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Tree Sidebar -->
+        <aside class="w-72 hidden lg:block fixed h-screen overflow-y-auto pb-24 px-6 border-r border-slate-200 bg-white">
+            <nav class="py-8">
+                <div class="menu-category">Getting Started</div>
+                <a href="index.html#intro" class="menu-item"><i class="fas fa-book-open mr-3 w-4"></i> Introduction</a>
+                <a href="index.html#installation" class="menu-item"><i class="fas fa-download mr-3 w-4"></i> Installation</a>
+                <a href="index.html#config" class="menu-item"><i class="fas fa-sliders-h mr-3 w-4"></i> Configuration</a>
+                <a href="index.html#usage" class="menu-item"><i class="fas fa-code mr-3 w-4"></i> Basic Usage</a>
+
+                <div class="menu-category">Attributes</div>
+                <div>
+                    <div class="menu-item cursor-default text-indigo-600 font-bold"><i class="fas fa-tags mr-3 w-4"></i> Schema Basics</div>
+                    <div class="sub-menu">
+                        <a href="#model-attribute" class="sub-item">#[Model]</a>
+                        <a href="#types-fields" class="sub-item">#[Type] & #[Field]</a>
+                        <a href="#" class="sub-item">#[Input]</a>
+                        <a href="#" class="sub-item">#[Query]</a>
+                        <a href="#" class="sub-item">#[Mutation]</a>
+                    </div>
+                </div>
+
+                <div class="menu-category">Advanced</div>
+                <div>
+                    <div class="menu-item cursor-default text-slate-900 font-semibold"><i class="fas fa-vial mr-3 w-4"></i> Directives</div>
+                    <div class="sub-menu">
+                        <a href="#" class="sub-item">Authentication</a>
+                        <a href="#" class="sub-item">Validation Rules</a>
+                        <a href="#" class="sub-item">Custom Directives</a>
+                    </div>
+                </div>
+
+                <div class="menu-category">Community</div>
+                <a href="index.html#credits" class="menu-item"><i class="fas fa-heart mr-3 w-4"></i> Credits</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-72 px-6 py-12 lg:px-16 max-w-5xl">
+            
+            <section id="schema-intro" class="mb-16 scroll-mt-24">
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block">Core Concepts</span>
+                <h1 class="text-4xl lg:text-5xl font-extrabold mb-6 tracking-tight">Schema Basics</h1>
+                <p class="text-xl text-slate-600 leading-relaxed">
+                    LaraQL uses **Code-First Discovery**. Instead of maintaining a separate <code>.graphql</code> file, 
+                    your PHP classes become the source of truth. LaraQL scans these classes and generates the SDL for Lighthouse on the fly.
+                </p>
+            </section>
+
+            <!-- The #[Model] Attribute -->
+            <section id="model-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">The #[Model] Attribute</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    When you tag an Eloquent model with <code>#[Model]</code>, LaraQL creates an entire CRUD suite automatically.
+                </p>
+                
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+                    <h4 class="font-bold text-slate-800 mb-4 italic text-sm">Automated SDL Generation:</h4>
+                    <ul class="grid md:grid-cols-2 gap-4 text-sm">
+                        <li class="flex items-center gap-2 text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> Full GraphQL <strong>Type</strong>.
+                        </li>
+                        <li class="flex items-center gap-2 text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> <strong>Input</strong> type for data.
+                        </li>
+                        <li class="flex items-center gap-2 text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> <code>find</code> & <code>all</code> Queries.
+                        </li>
+                        <li class="flex items-center gap-2 text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> Full <strong>CRUD</strong> Mutations.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Types and Fields -->
+            <section id="types-fields" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Types & Fields</h2>
+                <p class="mb-6 text-slate-600">
+                    Use <code>#[Type]</code> and <code>#[Field]</code> for granular control over what is exposed.
+                </p>
+                <pre><code>use LaraQL\Attributes\{Type, Field};
+
+#[Type]
+class UserProfile
+{
+    #[Field]
+    public string $bio;
+
+    #[Field]
+    public function avatarUrl(): string 
+    {
+        return "https://cdn.example.com/" . $this->id;
+    }
+}</code></pre>
+            </section>
+
+            <!-- Naming Conventions -->
+            <section id="conventions" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Naming Conventions</h2>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">PHP Entity</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">GraphQL Output</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">class Article</td>
+                                <td class="px-6 py-4 font-mono">Article (Type)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">$authorName</td>
+                                <td class="px-6 py-4 font-mono">author_name (Field)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="pt-10 border-t border-slate-200 text-slate-400 text-sm">
+                &copy; 2025 LaraQL Made with ❤️ by <a href="https://www.nodesol.com" class="text-indigo-600 hover:underline">NodeSol</a>.
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

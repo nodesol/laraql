@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Type] Attribute -->
+            <section id="query-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Query]</code> Attribute</h2>
+                <p class=" mb-4">
+                    When you add <code>#[Query]</code> attribute to a model or a class, LaraQL creates a GraphQL Query automatically.
+                </p>
+                <p class=" mb-4">By default Lighhouse GraphQL package looks for queries in the default namespace <code>App\GraphQL\Queries</code></p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+use App\Models\Article as ArticleModel;
+
+#[Query(
+    query: "@field(resolver:\"Article@find\")",
+)]
+class Article
+{
+    public function find(mixed $rootValue, array $args) : ArticleModel {
+        return ArticleModel::find($args['id']);
+    }
+}</code></pre>
+            </section>
+
+            <section id="name" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Name</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute can be fully customized to generate the sdl using arguments. 
+                    The <code>#[Query]</code> attribute accepts a <strong>name</strong> attribute that allows you to override the name of the query. 
+                    By default the class name is used in camelcase format. Here is how we create and article query in GraphQL
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+use App\Models\Article as ArticleModel;
+
+#[Query(
+    name: "article",
+    query: "@field(resolver:\"Article@find\")",
+)]
+class Article
+{
+    public function find(mixed $rootValue, array $args) : ArticleModel {
+        return ArticleModel::find($args['id']);
+    }
+}</code></pre>
+                <p class="mt-5"><strong>Note:</strong> The names must be unique. You can not have multiple queries with the same name.</p>
+            </section>
+
+            <section id="return-type" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Return Type</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute accepts a <strong>return_type</strong> attribute that allows you to override the return type of the query along with any directives you may want to pass to the return type. 
+                    By default the class name is used but any GraphQL type can be used here
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+use App\Models\Article as ArticleModel;
+
+#[Query(
+    query: "@field(resolver:\"Article@find\")",
+    return_type: "Article",
+)]
+class Article
+{
+    public function find(mixed $rootValue, array $args) : ArticleModel {
+        return ArticleModel::find($args['id']);
+    }
+}</code></pre>
+            </section>
+
+            <section id="directives" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Directives</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute accepts a <strong>directives</strong> attribute that allows you to pass an array of directives 
+                    to the query object. 
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+
+#[Query(
+    directives: ["@guard", "@model(\"Articles\")"],
+)]
+class Article
+{
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@guard</td>
+                                <td class="px-6 py-4 font-mono">Requires the user to be authenticated to use this query</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@model</td>
+                                <td class="px-6 py-4 font-mono">Specifies which model to use for this query</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="filters" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Filters</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute can be given a list of filters or field names to filter on using the <strong>filters</strong> argument.
+                    The filters argument expects an array of strings with each string representing a field, its type, and a directive.
+                    By default the following filter is added to each query <pre>id: ID @eq</pre>
+                    Here is an example using the default filter:
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+
+#[Query(
+    filters: ['id: ID @eq'],
+    directives: ["@guard", "@model(\"Articles\")"],
+)]
+class Article
+{
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@eq</td>
+                                <td class="px-6 py-4 font-mono">Filters results where a column equals the argument value.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@neq</td>
+                                <td class="px-6 py-4 font-mono">Filters results where a column does not equal the argument value.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@in</td>
+                                <td class="px-6 py-4 font-mono">Filters results where a column is within a given list of values.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@notIn</td>
+                                <td class="px-6 py-4 font-mono">Filters results where a column is not in a given list of values.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@where</td>
+                                <td class="px-6 py-4 font-mono">Applies a flexible WHERE clause (e.g., using LIKE operators).</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@whereBetween</td>
+                                <td class="px-6 py-4 font-mono">Filters results within a specified range.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@whereNotBetween</td>
+                                <td class="px-6 py-4 font-mono">Filters results outside a specified range.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@whereJsonContains</td>
+                                <td class="px-6 py-4 font-mono">Filters results based on JSON column content.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@whereConditions</td>
+                                <td class="px-6 py-4 font-mono">Enables complex nested boolean logic for filtering.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@builder</td>
+                                <td class="px-6 py-4 font-mono">Calls a custom method on a class to manually modify the query builder.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@scope</td>
+                                <td class="px-6 py-4 font-mono">Applies a specific Eloquent model scope to the query.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@search</td>
+                                <td class="px-6 py-4 font-mono">Uses Laravel Scout to perform full-text searches.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@trashed</td>
+                                <td class="px-6 py-4 font-mono">Allows querying soft-deleted records (e.g., only, with, or without).</td>
+                            </tr>
+
+                            <!-- Validation & Security -->
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rules</td>
+                                <td class="px-6 py-4 font-mono">Applies standard Laravel validation rules to an argument.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rulesForArray</td>
+                                <td class="px-6 py-4 font-mono">Applies validation rules to each element within an array argument.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@validator</td>
+                                <td class="px-6 py-4 font-mono">Points to a custom Validator class for complex validation logic.</td>
+                            </tr>
+
+                            <!-- Data Transformation (ArgTransformer Directives) -->
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@bcrypt</td>
+                                <td class="px-6 py-4 font-mono">Automatically hashes the argument value using the bcrypt algorithm.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@hash</td>
+                                <td class="px-6 py-4 font-mono">Hashes the argument value using Laravel's default hasher.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@trim</td>
+                                <td class="px-6 py-4 font-mono">Removes whitespace from the beginning and end of a string argument.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@spread</td>
+                                <td class="px-6 py-4 font-mono">Spreads input object properties directly into the resolver's arguments.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@convertEmptyStringsToNull</td>
+                                <td class="px-6 py-4 font-mono">Converts empty string inputs to null.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@globalId</td>
+                                <td class="px-6 py-4 font-mono">Decodes a Relay Global ID back into its original database ID.</td>
+                            </tr>
+
+                            <!-- Meta-Directives -->
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@cacheKey</td>
+                                <td class="px-6 py-4 font-mono">Marks an argument to be used as part of the unique key for field caching.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@inject</td>
+                                <td class="px-6 py-4 font-mono">Injects a value from the service container or context into the argument.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="filters-override" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Filters Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute can override the default filters by using the <b>filters_override</b> argument to add additional filters to the existing or default filters.
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+
+#[Query(
+    filters_override: ['title: String @where(operator: \"like\")'],
+    directives: ["@guard", "@model(\"Articles\")"],
+)]
+class Article
+{
+}</code></pre>
+            </section>
+
+            <section id="query" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Filters Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute can override the default Eloquent query by using the <b>query</b> argument.
+                    By default @find is used for the query
+                </p>
+                <pre><code>namespace App\GraphQL\Queries;
+                    
+use Nodesol\LaraQL\Attributes\Query;
+
+#[Query(
+    query: "@find",
+    directives: ["@guard", "@model(\"Articles\")"],
+)]
+class Article
+{
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@aggregate</td>
+                                <td class="px-6 py-4 font-mono">Returns calculated values like AVG, SUM, MIN, or MAX.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@all</td>
+                                <td class="px-6 py-4 font-mono">Fetches a collection of all records for a model.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@event</td>
+                                <td class="px-6 py-4 font-mono">Dispatches a Laravel event</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@field</td>
+                                <td class="px-6 py-4 font-mono">Points to a custom resolver class or static method.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@find</td>
+                                <td class="px-6 py-4 font-mono">Retrieves a single record by its primary key.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@first</td>
+                                <td class="px-6 py-4 font-mono">Retrieves the first record matching given criteria.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@method</td>
+                                <td class="px-6 py-4 font-mono">Calls a specific method on the model to resolve the field.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@paginate</td>
+                                <td class="px-6 py-4 font-mono">Returns a paginated list of model instances.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="authorization" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Authorization</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Query]</code> attribute can require authorization by using the <strong>authorize</strong> argument. 
+                    You can simply set the authorize value to true to use the default Laravel Policy for the model and the default method of view.
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    authorize: true,
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+
+                <p class="mt-6 mb-6 text-slate-600 leading-relaxed">
+                    You can also override the default by passing a string instead of a boolean containing the directive to use for authorization.
+                    The default directive used on a query is shown in the example below:
+                </p>
+                <pre><code>use Nodesol\LaraQL\Attributes\Model;
+
+#[Model(
+    authorize: "@canFind(ability: \"view\", find: \"id\")",
+)]
+class Article extends Model
+{
+    public string $title;
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@canFind</td>
+                                <td class="px-6 py-4 font-mono">Finds a model by ID and checks a policy against it before proceeding with a mutation or query.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@canQuery</td>
+                                <td class="px-6 py-4 font-mono">Similar to @canFind, but uses a broader query to check permissions on a model before executing the resolver.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@canModel</td>
+                                <td class="px-6 py-4 font-mono">Checks authorization against a specific model class (typically used for "create" or "viewAny" abilities).</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@canRoot</td>
+                                <td class="px-6 py-4 font-mono">Checks permissions against the root object of the current field (useful for self-access checks).</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@canResolved</td>
+                                <td class="px-6 py-4 font-mono">Checks permissions against the already resolved model instance (runs the resolver first).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>

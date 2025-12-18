@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Type] Attribute -->
+            <section id="type-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Type]</code> Attribute</h2>
+                <p class=" mb-4">
+                    When you add <code>#[Type]</code> attribute to a model or a class, LaraQL creates a GraphQL type automatically using the class's public properties or Model's attributes as fields.
+                    You can use any built-in php types or any class that has a corresponding GraphQL Type as the type of your field
+                </p>
+                <p class=" mb-4">By default Lighhouse GraphQL package looks for types in the default namespace <code>App\GraphQL\Types</code></p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+
+#[Type()]
+class Article
+{
+    public function __construct(
+        public int $id,
+        public string $name,
+    ){}
+}</code></pre>
+            </section>
+
+            <section id="name" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Name</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Type]</code> attribute can fully customize each underlaying attribute used to generate the sdl using arguments. 
+                    The <code>#[Type]</code> accepts a <strong>name</strong> attribute that allows you to override the name of the type. 
+                    By default the class name is used
+                </p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+
+#[Type(
+    name: "Article",
+)]
+class Article
+{
+
+}</code></pre>
+                <p class="mt-5"><strong>Note:</strong> The type names must be unique</p>
+            </section>
+
+            <section id="paginator" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Paginator</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Type]</code> attribute can also automatically create a paginator for a type using the <strong>create_paginator</strong> argument.
+                    The default value for this argument is false. 
+                    The name of the Paginator is the same name as your type with the word Paginator appended to it. In this example we create an ArticlePaginator as well as an Article.
+                </p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+
+#[Type(
+    name: "Article",
+    create_paginator: true,
+)]
+class Article
+{
+
+}</code></pre>
+            </section>
+
+            <section id="columns" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Columns</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Type]</code> attribute can be given a list of columns or field names using the <strong>columns</strong> argument.
+                    The columns argument expects an array of columns with the keys being the field names and values being the type of field along with any directives that need to be added to the field
+                </p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+
+#[Type(
+    columns: [
+        'title' => 'String'
+        'name' => 'String @deprecated @rename(attribute: \"title\")'
+    ],
+)]
+class Article
+{
+
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directive</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@aggregate</td>
+                                <td class="px-6 py-4 font-mono">Returns calculated values like AVG, SUM, MIN, or MAX.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@deprecated</td>
+                                <td class="px-6 py-4 font-mono">Specifies a field to be deprecated</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@field</td>
+                                <td class="px-6 py-4 font-mono">Points to a custom resolver class or static method.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@globalId</td>
+                                <td class="px-6 py-4 font-mono">A unique base64-encoded string that globally identifies the object</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@method</td>
+                                <td class="px-6 py-4 font-mono">Useful for models or other classes that have getters. It will call the given method with the client given arguements </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rename</td>
+                                <td class="px-6 py-4 font-mono">This can often be useful to ensure consistent naming of your schema without having to change the underlying models.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@hasOne</td>
+                                <td class="px-6 py-4 font-mono">Resolves a one-to-one relationship.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@hasMany</td>
+                                <td class="px-6 py-4 font-mono">Resolves a one-to-many relationship.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@belongsTo</td>
+                                <td class="px-6 py-4 font-mono">Resolves an inverse one-to-one or many-to-one relationship.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@belongsToMany</td>
+                                <td class="px-6 py-4 font-mono">Resolves a many-to-many relationship.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@count</td>
+                                <td class="px-6 py-4 font-mono">Returns the count of related models instead of the models themselves.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@with</td>
+                                <td class="px-6 py-4 font-mono">Eager loads a relationship to prevent N+1 query problems.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="columns-override" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Columns Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Type]</code> attribute can override the default columns by using the <b>columns_override</b> argument to specify a different GraphQL Type or apply directives. It can also be used to add additional fields.
+                </p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+use App\Models\User;
+
+#[Type(
+    columns_override: [
+        "id" => "ID",
+        "user_id" => "ID",
+        "user" => "User @method("user")",
+    ],
+)]
+class Article
+{
+    public function __construct(
+        public int $id,
+        public string $name,
+        public int $user_id,
+    ){}
+    public function user() : User {
+        return User::find($this->user_id);
+    }
+}</code></pre>
+            </section>
+
+            <section id="extended-type" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Extended Type</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Type]</code> attribute can extend other types inheriting their fields and directives
+                </p>
+                <pre><code>namespace App\GraphQL\Types;
+                    
+use Nodesol\LaraQL\Attributes\Type;
+use App\Models\User;
+
+#[Type()]
+#[Type(
+    name: "ArticleWithUser",
+    columns: [
+        "user" => "User @method("user")",
+    ],
+)]
+class Article
+{
+    public function __construct(
+        public int $id,
+        public string $name,
+        public int $user_id,
+    ){}
+    public function user() : User {
+        return User::find($this->user_id);
+    }
+}</code></pre>
+            </section>
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>

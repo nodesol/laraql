@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Type] Attribute -->
+            <section id="query-collection-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>#[QueryCollection]</code> Attribute</h2>
+                <p class=" mb-4">
+                    <code>#[QueryCollection]</code> is just another <code>#[Query]</code> that modifies the defaults of a query to support multiple results with filtering and sorting through directives
+                </p>
+                <p class=" mb-4">The default query argument is changed to <code>@paginate(defaultCount: 10)</code></p>
+                <p class=" mb-4">The default authorize string is changed to <code>@canModel(ability: "viewAny")</code></p>
+                <p class=" mb-4">The default filters argument is changed to allow custom filtering on any field, paginate the results, and sort by any field as well.</p>
+                <pre><code>filters: [
+    'where: _ @whereConditions(column: {})', 
+    'first: Int! = 10', 
+    'page: Int', 
+    'orderBy: _ @orderBy'
+]</code></pre>
+                <p class="mt-6 mb-4">Here is what a query collection looks like</p>
+                <pre><code>namespace App\Models;
+                    
+use Nodesol\LaraQL\Attributes\QueryCollection;
+
+#[QueryCollection()]
+class Article extends Model
+{}</code></pre>
+            </section>
+
+            <section id="pagination" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Pagination</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[QueryCollection]</code> attribute automatically paginates your results. You can control this pagination from the client using arguments.
+                </p>
+                <p class="mb-6 text-slate-600 leading-relaxed">Use the <strong>first</strong> argument to specify the number of results to return per page</p>
+                <p class="mb-6 text-slate-600 leading-relaxed">Use the <strong>page</strong> argument to specify the page number you want to show</p>
+                <pre><code>query articles {
+    articles(first: 10, page: 1) {
+        data {
+            id,
+            name
+        }
+    }
+}</code></pre>
+            </section>
+
+            <section id="filtering" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Filtering</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[QueryCollection]</code> attribute automatically allows filtering your results. You can control the filtering from the client side using <strong>where</strong> argument.
+                </p>
+                <pre><code>query articles {
+    articles(
+        where: {column: "title", operator: LIKE, value: "%LaraQL%"} 
+    ) {
+        data {
+            id,
+            name
+        }
+    }
+}</code></pre>
+                <p class="mt-6 mb-6 text-slate-600 leading-relaxed">
+                    You can add more complex where conditions including relations using a combination of AND, OR, and HAS
+                </p>
+                <pre><code>query articles {
+    articles ( 
+        where: {
+            AND:[
+                {column: "title", operator: LIKE, value: "%LaraQL%"}, 
+                {column: "title", operator: NOT_LIKE, value: "%Python%"}
+            ]
+        }
+    ) {
+        data {
+            id,
+            name
+        }
+    }
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Operators</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Operator</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">EQ</td>
+                                <td class="px-6 py-4 font-mono">Equal operator (=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NEQ</td>
+                                <td class="px-6 py-4 font-mono">Not equal operator (!=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">GT</td>
+                                <td class="px-6 py-4 font-mono">Greater than operator (&gt;)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">GTE</td>
+                                <td class="px-6 py-4 font-mono">Greater than or equal operator (&gt;=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">LT</td>
+                                <td class="px-6 py-4 font-mono">Less than operator (&lt;)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">LTE</td>
+                                <td class="px-6 py-4 font-mono">Less than or equal operator (&lt;=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">LIKE</td>
+                                <td class="px-6 py-4 font-mono">Like operator for pattern matching</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_LIKE</td>
+                                <td class="px-6 py-4 font-mono">Not like operator</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IN</td>
+                                <td class="px-6 py-4 font-mono">In operator for array values</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_IN</td>
+                                <td class="px-6 py-4 font-mono">Not in operator for array values</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">BETWEEN</td>
+                                <td class="px-6 py-4 font-mono">Between operator for value ranges</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_BETWEEN</td>
+                                <td class="px-6 py-4 font-mono">Not between operator for value ranges</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IS_NULL</td>
+                                <td class="px-6 py-4 font-mono">Checks if the column value is NULL</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IS_NOT_NULL</td>
+                                <td class="px-6 py-4 font-mono">Checks if the column value is NOT NULL</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="sorting" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Sorting</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[QueryCollection]</code> attribute automatically allows sorting your results. You can control the sorting from the client side using the <strong>orderBy</strong> argument.
+                </p>
+                <pre><code>query articles {
+    articles(
+        orderBy: [
+            {column: "name", order: ASC},
+            {column: "id", order: DESC},
+        ]
+    ) {
+        data {
+            id,
+            name
+        }
+    }
+}</code></pre>
+            </section>
+
+            <section id="scout-support" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Scout Support</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The Lighthouse GraphQL package already has support for Laravel Scout using the Scout Builder as well as the @search directive. 
+                    The built-in support does not allow where conditions on the SQL query after filtering on the scout driver thus we created our own filters for scout.
+                </p>
+                <p class="mb-6 text-slate-600 leading-relaxed"><strong>Note:</strong> Only Meilisearch is supported at the moment</p>
+                <pre><code>namespace App\Models;
+                    
+use Nodesol\LaraQL\Attributes\QueryCollection;
+
+#[QueryCollection(
+    filters_override: [
+        scoutSearch: _ @scoutFilters
+    ]
+)]
+class Article extends Model
+{}</code></pre>
+                <p class="mt-6 mb-6 text-slate-600 leading-relaxed"><strong>Note:</strong> Although this will allow filtering on all available fields, only fields specified as filterable in Meilisearch will be filterable. Filtering on non-filterable fields will result in an error.</p>
+                <p class="mt-6 mb-6 text-slate-600 leading-relaxed">Once you have added the filters, you can perform a full text search using a query by providing an optional search string and scout filters like this</p>
+            
+                <pre><code>query articles {
+    articles ( 
+        where: {
+            AND: [
+                {column: "title", operator: LIKE, value: "%LaraQL%"}, 
+                {column: "title", operator: NOT_LIKE, value: "%Python%"},
+            ]
+        },
+        scoutSearch: {
+            search: "LaraQL",
+            filters: {
+                AND: [
+                    {operator: FUNCTION, value: "_geoRadius(34.154778, -104.645259, 10000)"},
+                    {column: "created_at", operator: GTE, value: "2025-01-01"},
+                ]
+            }
+        }
+    ) {
+        data {
+            id,
+            name
+        }
+    }
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Operators</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Operator</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">EQ</td>
+                                <td class="px-6 py-4 font-mono">Equal operator (=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NEQ</td>
+                                <td class="px-6 py-4 font-mono">Not equal operator (!=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">GT</td>
+                                <td class="px-6 py-4 font-mono">Greater than operator (&gt;)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">GTE</td>
+                                <td class="px-6 py-4 font-mono">Greater than or equal operator (&gt;=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">LT</td>
+                                <td class="px-6 py-4 font-mono">Less than operator (&lt;)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">LTE</td>
+                                <td class="px-6 py-4 font-mono">Less than or equal operator (&lt;=)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IN</td>
+                                <td class="px-6 py-4 font-mono">In operator for array values</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_IN</td>
+                                <td class="px-6 py-4 font-mono">Not in operator for array values</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">EXISTS</td>
+                                <td class="px-6 py-4 font-mono">Whether a value exists</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_EXISTS</td>
+                                <td class="px-6 py-4 font-mono">Whether a value not exists</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">EMPTY</td>
+                                <td class="px-6 py-4 font-mono">Whether a value is empty</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IS_NOT_EMPTY</td>
+                                <td class="px-6 py-4 font-mono">Whether a value is not empty</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">IS_NULL</td>
+                                <td class="px-6 py-4 font-mono">Checks if the column value is NULL</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">NOT_NULL</td>
+                                <td class="px-6 py-4 font-mono">Checks if the column value is NOT NULL</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">BETWEEN</td>
+                                <td class="px-6 py-4 font-mono">Between operator for value ranges</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">FUNCTION</td>
+                                <td class="px-6 py-4 font-mono">Apply a function based filter like _geoRadius()</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>

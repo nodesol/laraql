@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaraQL Docs | Effortless GraphQL for Laravel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        @import url('fonts.googleapis.com');
+        
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #1e293b; overflow-x: auto; font-size: 0.9rem; }
+        
+        /* Tree Menu Styles (Must remain here or in an external CSS file) */
+        .menu-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-left: 1rem; }
+        .menu-item { display: flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; color: #475569; border-radius: 0.5rem; transition: all 0.2s; }
+        .menu-item:hover { background-color: #f1f5f9; color: #6366f1; }
+        .menu-item.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sub-menu { margin-left: 1.5rem; border-left: 1px solid #e2e8f0; margin-top: 0.25rem; }
+        .sub-item { display: block; padding: 0.35rem 1.25rem; font-size: 0.815rem; color: #64748b; position: relative; }
+        .sub-item:hover { color: #6366f1; }
+        .sub-item::before { content: ''; position: absolute; left: -1px; top: 50%; width: 8px; height: 1px; background: #e2e8f0; }
+        
+        section { scroll-margin-top: 6rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Navbar & Sidebar Injection Point -->
+    <div id="nav-placeholder"></div>
+
+    <!-- The flex container below relies on the sidebar being injected above it -->
+    <div class="flex pt-16 max-w-8xl mx-auto">
+        <!-- Main Content (Adjusted margin-left to match wider sidebar) -->
+        <main class="flex-1 lg:ml-80 px-6 py-12 lg:px-16 max-w-5xl">
+            
+
+
+            <!-- The #[Type] Attribute -->
+            <section id="input-attribute" class="mb-16 scroll-mt-24">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4"><code>[#Input]</code> Attribute</h2>
+                <p class=" mb-4">
+                    When you add <code>#[Input]</code> attribute to a model or a class, LaraQL creates a GraphQL input type automatically using the class's properties or Model's fillables as input fields.
+                    You can use any built-in php types or any class that has a corresponding GraphQL Type as the type of your input field.
+                    You can also make your constructor arguments optional for the input fields to be optional in the GraphQL Type
+                </p>
+                <p class=" mb-4">By default Lighhouse GraphQL package looks for inputs in the default namespace <code>App\GraphQL\Inputs</code></p>
+                <pre><code>namespace App\GraphQL\Inputs;
+                    
+use Nodesol\LaraQL\Attributes\Input;
+
+#[Input()]
+class Article
+{
+    public function __construct(
+        public int $id,
+        public string $name,
+    ){}
+}</code></pre>
+            </section>
+
+            <section id="name" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Name</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Input]</code> attribute can fully customize each underlaying attribute used to generate the sdl using arguments. 
+                    The <code>#[Input]</code> attribute accepts a <strong>name</strong> attribute that allows you to override the name of the input type. 
+                    By default the class name is used and the word Input is appended. Here is how we create and ArticleInput in GraphQL
+                </p>
+                <pre><code>namespace App\GraphQL\Inputs;
+                    
+use Nodesol\LaraQL\Attributes\Input;
+
+#[Input(
+    name: "ArticleInput",
+)]
+class Article
+{
+
+}</code></pre>
+                <p class="mt-5"><strong>Note:</strong> The names must be unique. You can not have a type and an input with the same name.</p>
+            </section>
+
+            <section id="inputs" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Inputs</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Input]</code> attribute can be given a list of inputs or field names using the <strong>inputs</strong> argument.
+                    The inputs argument expects an array of inputs with the keys being the field names and values being the type of field along with any directives that need to be added to the field
+                </p>
+                <pre><code>namespace App\GraphQL\Inputs;
+                    
+use Nodesol\LaraQL\Attributes\Input;
+
+#[Input(
+    inputs: [
+        'title' => 'String! @rules(apply: [\"required\", \"max:200\"])',
+    ],
+)]
+class Article
+{
+
+}</code></pre>
+                <span class="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-2 block mt-10">Supported Directives</span>
+                <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                    <table class="w-full text-left bg-white text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-700">Directive</th>
+                                <th class="px-6 py-4 font-bold text-slate-700">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@convertEmptyStringsToNull</td>
+                                <td class="px-6 py-4 font-mono">Use this when there is no meaningful distinction between an empty string and null.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@deprecated</td>
+                                <td class="px-6 py-4 font-mono">Specifies a field to be deprecated</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@drop</td>
+                                <td class="px-6 py-4 font-mono">This is useful when you want to deprecate a field, but avoid breaking changes for clients that still pass the value.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@globalId</td>
+                                <td class="px-6 py-4 font-mono">A unique base64-decoded string that globally identifies the object</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@hash</td>
+                                <td class="px-6 py-4 font-mono">The most common use case for this is when dealing with passwords</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@method</td>
+                                <td class="px-6 py-4 font-mono">Useful for models or other classes that have getters. It will call the given method with the client given arguements </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rename</td>
+                                <td class="px-6 py-4 font-mono">This can often be useful to ensure consistent naming of your schema without having to change the underlying models.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rules</td>
+                                <td class="px-6 py-4 font-mono">Validate an input using <a href="https://laravel.com/docs/validation">Laravel validation</a>.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@rulesForArray</td>
+                                <td class="px-6 py-4 font-mono">Apply validation rules to each item in an array using <a href="https://laravel.com/docs/validation">Laravel validation</a>.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@spread</td>
+                                <td class="px-6 py-4 font-mono">Merge the fields of a nested input object into the arguments of its parent when processing the field arguments given by a client.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-indigo-600">@validator</td>
+                                <td class="px-6 py-4 font-mono">Provide validation rules through a PHP class</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="inputs-override" class="mb-20">
+                <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4">Inputs Override</h2>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    The <code>#[Input]</code> attribute can override the default fields by using the <b>inputs_override</b> argument to specify a different GraphQL Type or apply directives. It can also be used to add additional fields.
+                </p>
+                <pre><code>namespace App\GraphQL\Inputs;
+                    
+use Nodesol\LaraQL\Attributes\Input;
+
+#[Input(
+    name: "ArticleWithCommentsInput",
+    inputs_override: [
+        "comments" => "[CommentInput]",
+    ],
+)]
+class Article
+{
+    public function __construct(
+        public int $id,
+        public string $name,
+    ){}
+}</code></pre>
+            </section>
+            
+
+            <!-- Footer Injection Point -->
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Script to load external components -->
+    <script>
+        async function loadComponent(id, file) {
+            const element = document.getElementById(id);
+            const response = await fetch(file);
+            element.innerHTML = await response.text();
+        }
+
+        window.onload = () => {
+            // Note: This requires a web server (like `php -S localhost:8000`) to run correctly due to CORS policies on local files.
+            loadComponent('nav-placeholder', '../includes/nav.html');
+            loadComponent('footer-placeholder', '../includes/footer.html');
+        };
+    </script>
+</body>
+</html>
