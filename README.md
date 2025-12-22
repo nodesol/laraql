@@ -1,59 +1,45 @@
-# This is my package laraql
+# LaraQL
+## Laravel, meet GraphQL.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/nodesol/laraql.svg?style=flat-square)](https://packagist.org/packages/nodesol/laraql)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/nodesol/laraql/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/nodesol/laraql/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/nodesol/laraql/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/nodesol/laraql/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/nodesol/laraql.svg?style=flat-square)](https://packagist.org/packages/nodesol/laraql)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+LaraQL enables you to effortlessly integrate GraphQL into your Laravel application using native PHP attributes. Published in 2025 for modern developer workflows.
 
-## Support us
+LaraQL uses Code-First Discovery. Instead of maintaining a separate .graphql file, your PHP classes become the source of truth. LaraQL scans these classes and generates the SDL for Lighthouse on the fly.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/LaraQL.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/LaraQL)
+## Documentation
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+[https://nodesol.github.io/laraql](https://nodesol.github.io/laraql)
 
 ## Installation
 
-You can install the package via composer:
+Use composer to add LaraQL to your Laravel project:
 
 ```bash
 composer require nodesol/laraql
 ```
 
-You can publish and run the migrations with:
+Publish the default configuration to customize scan paths.
 
 ```bash
-php artisan vendor:publish --tag="laraql-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="laraql-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laraql-views"
+php artisan vendor:publish --tag="laraql-schema"
 ```
 
 ## Usage
 
+The *#[Model()]* attribute tells LaraQL that this class should be part of the GraphQL schema. LaraQL will automatically generate the necessary schema to create a **Type**, **Input**, two **Queries** (single/multiple), and **Mutations** (create/update/delete).
+
 ```php
-$laraQL = new Nodesol\LaraQL();
-echo $laraQL->echoPhrase('Hello, Nodesol!');
+use Nodesol\LaraQL\Attributes\Model as ModelAttribute;
+
+#[ModelAttribute()]
+class Article extends Model
+{
+    public string $title;
+}
 ```
 
 ## Testing
