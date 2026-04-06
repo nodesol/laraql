@@ -2,6 +2,21 @@
 
 All notable changes to `LaraQL` will be documented in this file.
 
+## v1.0.15 - 2026-04-06
+
+### What's Changed
+
+* Bump actions/checkout from 4 to 6 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/7
+* Bump stefanzweifel/git-auto-commit-action from 5 to 7 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/6
+* Bump dependabot/fetch-metadata from 2.4.0 to 2.5.0 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/10
+* update laraql to work with laravel 13 by @karimhassan3 in https://github.com/nodesol/laraql/pull/14
+
+### New Contributors
+
+* @karimhassan3 made their first contribution in https://github.com/nodesol/laraql/pull/14
+
+**Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.14...v1.0.15
+
 ## v1.0.14 - 2025-12-18
 
 **Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.13...v1.0.14
