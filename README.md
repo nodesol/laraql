@@ -42,6 +42,24 @@ class Article extends Model
 }
 ```
 
+## AI Agents (Laravel Boost)
+
+LaraQL ships [Laravel Boost](https://laravel.com/docs/boost) guidelines and agent skills, so coding agents extend the schema with attributes instead of hand-written SDL.
+
+```bash
+composer require laravel/boost --dev
+php artisan boost:install
+```
+
+Boost detects `nodesol/laraql` and installs:
+
+- **Guidelines** (always loaded): how LaraQL discovers classes, what `#[Model()]` generates, and the rules around `$fillable`, `$hidden`, schema caching, database introspection and overrides.
+- **Skills** (loaded on demand):
+    - `laraql-development` - models, attributes, generated CRUD, filters, overrides, authorization and schema debugging, plus `references/attributes.md` and `references/troubleshooting.md`.
+    - `laraql-scout-search` - the `@scoutFilters` directive for Meilisearch search combined with Eloquent `where` conditions and pagination.
+
+Both live in [`resources/boost`](resources/boost), so you can read them or copy them into your application's `.ai/guidelines` and `.ai/skills` directories to adapt them.
+
 ## Testing
 
 ```bash
