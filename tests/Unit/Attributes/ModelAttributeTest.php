@@ -14,6 +14,7 @@ use Workbench\App\Models\User;
 it('generates the type from the table columns', function () {
     $schema = (new ModelAttribute(class: User::class))->getTypeSchema();
 
+    // Relation fields are derived from the declared return type of the relation method.
     expect($schema)
         ->toContain('type User')
         ->toContain('id: ID!')
@@ -22,7 +23,7 @@ it('generates the type from the table columns', function () {
         ->toContain('created_at: DateTime')
         ->toContain('articles: [Article] @hasMany')
         ->toContain('comments: [Comment] @hasMany');
-})->note('LaraQL derives relation fields from the declared return type of the relation method.');
+});
 
 it('maps every column of the article table to its graphql type', function () {
     $schema = (new ModelAttribute(class: Article::class))->getTypeSchema();

@@ -7,6 +7,7 @@ use Workbench\App\Models\GuardedArticle;
 uses(MakesGraphQLRequests::class);
 
 it('creates a model through the generated mutation', function () {
+    // Every non nullable column is a required input field, because the input is built from the database columns.
     $response = $this->graphQL(/** @lang GraphQL */ '
         mutation {
             createArticle(input: {
@@ -30,7 +31,7 @@ it('creates a model through the generated mutation', function () {
         ->assertJsonPath('data.createArticle.is_active', true);
 
     expect(Article::query()->where('slug', 'created')->exists())->toBeTrue();
-})->note('Every non nullable column is a required input field, because the input is built from the database columns.');
+});
 
 it('requires every non nullable column to be present', function () {
     $this->graphQL(/** @lang GraphQL */ '
