@@ -7,6 +7,7 @@ namespace Nodesol\LaraQL\ScoutFilters;
 use GraphQL\Error\Error;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 class ScoutFiltersHandler
 {
@@ -17,7 +18,7 @@ class ScoutFiltersHandler
     /**
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
-     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<TModel>  $builder
+     * @param  Builder|EloquentBuilder<TModel>  $builder
      * @param  array<string, mixed>  $scoutFilters
      * @param  TModel|null  $model
      */

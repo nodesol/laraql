@@ -11,7 +11,9 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
@@ -25,7 +27,7 @@ abstract class ScoutFiltersBaseDirective extends BaseDirective implements ArgBui
     use GeneratesColumnsEnum;
 
     /**
-     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Relations\Relation<\Illuminate\Database\Eloquent\Model>  $builder  the builder used to resolve the field
+     * @param  Builder|EloquentBuilder<Model>|Relation<Model>  $builder  the builder used to resolve the field
      * @param  array<string, mixed>  $value  the client given value of the argument
      *
      * @phpstan-ignore generics.lessTypes

@@ -3,8 +3,10 @@
 use GraphQL\Language\Printer;
 use Nodesol\LaraQL\ScoutFilters\MeilisearchOperator;
 use Nodesol\LaraQL\ScoutFilters\Operator;
+use Nodesol\LaraQL\ScoutFilters\ScoutFiltersDirective;
 use Nodesol\LaraQL\ScoutFilters\ScoutFiltersServiceProvider;
 use Nuwave\Lighthouse\Schema\AST\ASTBuilder;
+use Nuwave\Lighthouse\Schema\DirectiveLocator;
 
 it('binds the meilisearch operator to the operator contract', function () {
     expect(app(Operator::class))->toBeInstanceOf(MeilisearchOperator::class);
@@ -52,8 +54,8 @@ it('injects the scout filters types into the schema', function () {
 });
 
 it('registers the directive namespace so @scoutFilters resolves', function () {
-    expect(Nuwave\Lighthouse\Schema\DirectiveLocator::class)
+    expect(DirectiveLocator::class)
         ->toBeString()
-        ->and(app(\Nuwave\Lighthouse\Schema\DirectiveLocator::class)->create('scoutFilters'))
-        ->toBeInstanceOf(Nodesol\LaraQL\ScoutFilters\ScoutFiltersDirective::class);
+        ->and(app(DirectiveLocator::class)->create('scoutFilters'))
+        ->toBeInstanceOf(ScoutFiltersDirective::class);
 });
