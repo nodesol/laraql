@@ -1,0 +1,15 @@
+laravel: ./workbench
+
+migrations:
+  - workbench/database/migrations
+
+workbench:
+  install: true
+  discovers:
+    web: false
+    api: false
+    commands: false
+    components: false
+    views: false
+    config: false
+    factories: true

@@ -62,8 +62,24 @@ Both live in [`resources/boost`](resources/boost), so you can read them or copy 
 
 ## Testing
 
+The suite runs on [Testbench](https://packages.tools/testbench) with a workbench application in [`workbench`](workbench) that provides the models, GraphQL classes, migrations and hand-written `graphql/schema.graphql` the tests exercise.
+
 ```bash
-composer test
+composer test        # run the whole suite
+composer test-coverage
+composer analyse     # PHPStan
+composer format      # Pint
+```
+
+The tests are split into two suites:
+
+- `tests/Unit` - the LaraQL attributes, the schema building listener, the column and relation type maps, and the Scout filters directive/handler.
+- `tests/Feature` - the schema LaraQL generates (printed and executed), the generated queries and mutations, Scout search, authorization and the service provider behaviour.
+
+[Pest](https://pestphp.com) reads its configuration from [`testbench.yaml.dist`](testbench.yaml.dist); copy it to `testbench.yaml` to change the workbench set-up locally. Coverage reporting needs a driver such as [PCOV](https://github.com/krakjoe/pcov) or Xdebug:
+
+```bash
+vendor/bin/pest --coverage --min=100
 ```
 
 ## Changelog

@@ -1,0 +1,195 @@
+<?php
+
+use Nuwave\Lighthouse\Testing\MakesGraphQLRequests;
+use Workbench\App\Models\Article;
+use Workbench\App\Models\GuardedArticle;
+
+uses(MakesGraphQLRequests::class);
+
+it('creates a model through the generated mutation', function () {
+    $response = $this->graphQL(/** @lang GraphQL */ '
+        mutation {
+            createArticle(input: {
+                title: "Created"
+                slug: "created"
+                status: "draft"
+                is_active: true
+            }) {
+                id
+                title
+                slug
+                status
+                is_active
+            }
+        }
+    ');
+
+    $response->assertGraphQLErrorFree()
+        ->assertJsonPath('data.createArticle.title', 'Created')
+        ->assertJsonPath('data.createArticle.status', 'draft')
+        ->assertJsonPath('data.createArticle.is_active', true);
+
+    expect(Article::query()->where('slug', 'created')->exists())->toBeTrue();
+})->note('Every non nullable column is a required input field, because the input is built from the database columns.');
+
+it('requires every non nullable column to be present', function () {
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation {
+            createArticle(input: { title: "Incomplete" }) { id }
+        }
+    ')->assertGraphQLErrorMessage('Field ArticleInput.slug of required type String! was not provided.');
+
+    expect(Article::query()->count())->toBe(0);
+});
+
+it('validates the input through the rules directive', function () {
+    $response = $this->graphQL(/** @lang GraphQL */ '
+        mutation {
+            createArticle(input: {
+                title: "'.str_repeat('a', 201).'"
+                slug: "too-long"
+                status: "draft"
+                is_active: true
+            }) { id }
+        }
+    ');
+
+    $response->assertGraphQLErrorMessage('Validation failed for the field [createArticle].');
+
+    $validation = $response->json('errors.0.extensions.validation');
+
+    expect($validation)->toHaveKey('input.title')
+        ->and($validation['input.title'])->toContain('The input.title field must not be greater than 200 characters.');
+
+    expect(Article::query()->count())->toBe(0);
+});
+
+it('updates a model through the generated mutation', function () {
+    $article = makeArticle(['title' => 'Before']);
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!, $input: ArticleInput!) {
+            updateArticle(id: $id, input: $input) {
+                id
+                title
+            }
+        }
+    ', [
+        'id' => $article->id,
+        'input' => [
+            'title' => 'After',
+            'slug' => $article->slug,
+            'status' => 'draft',
+            'is_active' => true,
+        ],
+    ])
+        ->assertGraphQLErrorFree()
+        ->assertJsonPath('data.updateArticle.title', 'After');
+
+    expect($article->refresh()->title)->toBe('After');
+});
+
+it('deletes a model through the generated mutation', function () {
+    $article = makeArticle();
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!) {
+            deleteArticle(id: $id) { id }
+        }
+    ', ['id' => $article->id])
+        ->assertGraphQLErrorFree()
+        ->assertJsonPath('data.deleteArticle.id', (string) $article->id);
+
+    expect(Article::query()->count())->toBe(0);
+});
+
+it('runs a hand written update mutation', function () {
+    $article = makeArticle(['status' => 'draft']);
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!) {
+            archiveArticleMutations(id: $id, status: "archived") {
+                id
+                status
+            }
+        }
+    ', ['id' => $article->id])
+        ->assertGraphQLErrorFree()
+        ->assertJsonPath('data.archiveArticleMutations.status', 'archived');
+
+    expect($article->refresh()->status)->toBe('archived');
+});
+
+it('runs a hand written delete mutation', function () {
+    $article = makeArticle();
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!) {
+            purgeArticleMutations(id: $id) { id }
+        }
+    ', ['id' => $article->id])->assertGraphQLErrorFree();
+
+    expect(Article::query()->count())->toBe(0);
+});
+
+it('accepts the published_at field that was added through an input override', function () {
+    $article = makeArticle();
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!, $input: ArticleInput!) {
+            updateArticle(id: $id, input: $input) {
+                id
+                published_at
+            }
+        }
+    ', [
+        'id' => $article->id,
+        'input' => [
+            'title' => $article->title,
+            'slug' => $article->slug,
+            'status' => $article->status,
+            'is_active' => true,
+            'published_at' => '2026-01-01 10:00:00',
+        ],
+    ])->assertGraphQLErrorFree();
+
+    expect($article->refresh()->published_at)->not->toBeNull();
+});
+
+it('enforces the policy generated by authorize true', function () {
+    $guarded = GuardedArticle::query()->create(['title' => 'Guarded']);
+
+    // The policy allows viewing, creating and updating.
+    $this->graphQL(/** @lang GraphQL */ '
+        query {
+            guarded_articles { data { id title } }
+            guarded_article(id: '.$guarded->id.') { id title }
+        }
+    ')->assertGraphQLErrorFree()
+        ->assertJsonPath('data.guarded_articles.data.0.title', 'Guarded')
+        ->assertJsonPath('data.guarded_article.title', 'Guarded');
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation {
+            createGuardedArticle(input: { title: "New" }) { id title }
+        }
+    ')->assertGraphQLErrorFree();
+
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!) {
+            updateGuardedArticle(id: $id, input: { title: "Updated" }) { id title }
+        }
+    ', ['id' => $guarded->id])
+        ->assertGraphQLErrorFree()
+        ->assertJsonPath('data.updateGuardedArticle.title', 'Updated');
+
+    // ... but never deleting.
+    $this->graphQL(/** @lang GraphQL */ '
+        mutation ($id: ID!) {
+            deleteGuardedArticle(id: $id) { id }
+        }
+    ', ['id' => $guarded->id])
+        ->assertGraphQLErrorMessage('This action is unauthorized.');
+
+    expect(GuardedArticle::query()->count())->toBe(2);
+});

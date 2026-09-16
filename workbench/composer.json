@@ -1,0 +1,12 @@
+{
+    "name": "nodesol/laraql-workbench",
+    "description": "Workbench application that backs the LaraQL test suite.",
+    "license": "MIT",
+    "private": true,
+    "autoload": {
+        "psr-4": {
+            "Workbench\\App\\": "app/",
+            "Workbench\\Database\\": "database/"
+        }
+    }
+}

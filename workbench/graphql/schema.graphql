@@ -1,0 +1,22 @@
+# Hand-written SDL for the things LaraQL does not generate.
+# LaraQL injects its own SDL through Lighthouse's BuildSchemaString event,
+# this file is merged with it.
+
+"""
+A hand-written type used to prove that LaraQL leaves app SDL untouched and
+that generated types can extend it.
+"""
+type SearchHit {
+    id: ID!
+    title: String!
+}
+
+"An enum referenced by generated input types through `inputs_override` and `columnsEnum`."
+enum ArticleStatus {
+    DRAFT
+    PUBLISHED
+}
+
+type Query {
+    handWrittenPing: String @field(resolver: "Workbench\\App\\GraphQL\\HandWrittenPingQuery@ping")
+}
