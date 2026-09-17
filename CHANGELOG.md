@@ -2,6 +2,16 @@
 
 All notable changes to `LaraQL` will be documented in this file.
 
+## v1.0.16 - 2026-09-17
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/13
+* Bump ramsey/composer-install from 3 to 4 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/11
+* Bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/15
+
+**Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.15...v1.0.16
+
 ## v1.0.15 - 2026-04-06
 
 ### What's Changed
