@@ -27,6 +27,10 @@ jobs:
         php: [8.5, 8.4, 8.3]
         laravel: [13.*, 12.*, 11.*]
         stability: [prefer-lowest, prefer-stable]
+        # The suite boots a workbench application, so the Testbench major has to
+        # match the Laravel major it is paired with. The prefer-lowest legs install
+        # the lowest allowed version of every dependency and then restore only the
+        # test harness, see the "Install dependencies" step below.
         include:
           - laravel: 13.*
             testbench: 11.*
@@ -56,10 +60,31 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-      - name: Install dependencies
+      - name: Pin the Laravel and Testbench versions under test
+        run: composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+
+      - name: Install dependencies (lowest)
+        if: matrix.stability == 'prefer-lowest'
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+          composer update --prefer-lowest --prefer-dist --no-interaction --no-scripts
+          composer update "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" pestphp/pest pestphp/pest-plugin-laravel pestphp/pest-plugin-arch --with-all-dependencies --prefer-dist --no-interaction
+        # The first command installs the lowest allowed version of every dependency.
+        # Its scripts are skipped because --prefer-lowest also downgrades the test
+        # harness, and the oldest patches of Testbench (9.0.0 / 10.0.0) cannot run a
+        # workbench based suite at all: 9.0.0 fails to boot the application
+        # ("Target class [cache.store] does not exist") and 10.0.0 with Laravel 12.0.x
+        # blows up in the migrator ("Undefined property: stdClass::$migration" in
+        # Migrator::hasRunAnyMigrations()). Both failures come from vendor code and are
+        # fixed in later patches of the same major.
+        #
+        # The second command restores the harness and the Pest tooling to the newest
+        # stable release of the requested majors, so the dependencies this package
+        # actually declares - nuwave/lighthouse, spatie/laravel-package-tools and
+        # mll-lab/graphql-php-scalars - stay on their lowest allowed version.
+
+      - name: Install dependencies (stable)
+        if: matrix.stability != 'prefer-lowest'
+        run: composer update --prefer-stable --prefer-dist --no-interaction
 
       - name: List Installed Dependencies
         run: composer show -D
