@@ -4,6 +4,7 @@ namespace Nodesol\LaraQL\Attributes;
 
 use Illuminate\Support\Str;
 
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 class QueryCollection implements Operation
 {
     private \ReflectionClass $reflector;

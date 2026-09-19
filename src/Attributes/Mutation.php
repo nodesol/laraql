@@ -2,6 +2,7 @@
 
 namespace Nodesol\LaraQL\Attributes;
 
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 class Mutation implements Operation
 {
     private \ReflectionClass $reflector;
