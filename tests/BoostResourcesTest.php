@@ -45,7 +45,9 @@ function laraqlBoostSkillDirectories(): array
 
 function laraqlBoostSkillFrontmatter(string $skillPath): string
 {
-    $contents = (string) file_get_contents($skillPath.'/SKILL.md');
+    // Normalize line endings first: on Windows (core.autocrlf) the files are checked
+    // out with CRLF, and `.+` would capture the trailing carriage return.
+    $contents = str_replace(["\r\n", "\r"], "\n", (string) file_get_contents($skillPath.'/SKILL.md'));
 
     expect(preg_match('/^---\R(.*?)\R---\R/s', $contents, $matches))->toBe(1);
 
@@ -84,7 +86,7 @@ it('ships boost skills with valid frontmatter', function () {
         preg_match('/^name:\s*(.+)$/m', $frontmatter, $name);
         preg_match('/^description:\s*(.+)$/m', $frontmatter, $description);
 
-        expect($name[1] ?? null)->toBe($directory)
+        expect(trim($name[1] ?? ''))->toBe($directory)
             ->and($directory)->toMatch('/^[a-z0-9]+(-[a-z0-9]+)*$/')
             ->and(trim($description[1] ?? ''))->not->toBeEmpty()
             ->and(strlen(trim($description[1] ?? '')))->toBeLessThanOrEqual(1024);
