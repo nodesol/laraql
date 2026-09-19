@@ -117,3 +117,54 @@ it('does not touch the cache when caching is disabled', function () {
 
     Cache::shouldNotHaveReceived('rememberForever');
 });
+
+it('maps a scanned file path to the class it holds on any platform', function (string $path, string $appPath, string $expected) {
+    $listener = new class extends BuildSchemaStringListener
+    {
+        public function map(string $path, string $appPath, string $namespace): string
+        {
+            return self::classNameFromPath($path, $appPath, $namespace);
+        }
+    };
+
+    expect($listener->map($path, $appPath, 'Workbench\App\\'))->toBe($expected);
+})->with([
+    'unix' => [
+        '/project/workbench/app/Models/Article.php',
+        '/project/workbench/app',
+        'Workbench\App\Models\Article',
+    ],
+    'unix with a trailing separator' => [
+        '/project/workbench/app/Models/Article.php',
+        '/project/workbench/app/',
+        'Workbench\App\Models\Article',
+    ],
+    'unix nested directories' => [
+        '/project/workbench/app/GraphQL/ArticleStats.php',
+        '/project/workbench/app/',
+        'Workbench\App\GraphQL\ArticleStats',
+    ],
+    'windows' => [
+        'C:\project\workbench\app\Models\Article.php',
+        'C:\project\workbench\app',
+        'Workbench\App\Models\Article',
+    ],
+    // app_path('/') mixes separators on Windows ("C:\project\workbench\app\/"),
+    // which used to leave the absolute path inside the derived class name and made
+    // every schema build fail with a ReflectionException.
+    'windows with the app_path("/") shape' => [
+        'C:\project\workbench\app\Models\Article.php',
+        'C:\project\workbench\app\/',
+        'Workbench\App\Models\Article',
+    ],
+    'windows nested directories' => [
+        'C:\project\workbench\app\Models\Nested\DeepArticle.php',
+        'C:\project\workbench\app',
+        'Workbench\App\Models\Nested\DeepArticle',
+    ],
+    'windows with mixed separators in the file path' => [
+        'C:\project\workbench\app\Models/Nested\DeepArticle.php',
+        'C:\project\workbench\app\/',
+        'Workbench\App\Models\Nested\DeepArticle',
+    ],
+]);

@@ -100,11 +100,9 @@ it('links every boost skill support file from its SKILL.md', function () {
         );
 
         foreach ($files as $file) {
-            $relative = str_replace(
-                [$skillPath.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR],
-                ['', '/'],
-                $file->getPathname()
-            );
+            // Strip the skill directory and normalize the separators so the relative
+            // path can be matched against the markdown on any platform.
+            $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($skillPath) + 1));
 
             if ($relative === 'SKILL.md') {
                 continue;

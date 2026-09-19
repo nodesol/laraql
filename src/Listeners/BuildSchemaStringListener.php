@@ -209,12 +209,30 @@ class BuildSchemaStringListener
 
     private function getClassFromPath(string $path): string
     {
-        $path = str_replace(app_path('/'), '', $path);
+        return static::classNameFromPath($path, app_path(), app()->getNamespace());
+    }
 
-        return sprintf(
-            '%s%s',
-            app()->getNamespace(),
-            strtr(substr($path, 0, strrpos($path, '.') ?: null), '/', '\\')
+    /**
+     * Map the path of a scanned file to the name of the class it holds.
+     *
+     * Both paths are normalized to forward slashes before the application path is
+     * stripped. On Windows the iterator reports paths with backslashes while
+     * `app_path('/')` mixes separators (`C:\project\app\/`), so a plain
+     * str_replace() never matched and the derived class name was unusable.
+     */
+    protected static function classNameFromPath(string $path, string $appPath, string $namespace): string
+    {
+        $file = str_replace('\\', '/', $path);
+        $application = rtrim(str_replace('\\', '/', $appPath), '/').'/';
+
+        if (str_starts_with($file, $application)) {
+            $file = substr($file, strlen($application));
+        }
+
+        return $namespace.strtr(
+            substr($file, 0, strrpos($file, '.') ?: null),
+            '/',
+            '\\'
         );
     }
 }
