@@ -2,6 +2,9 @@
 
 namespace Nodesol\LaraQL\Attributes;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
@@ -54,7 +57,19 @@ class QueryCollection implements Operation
         $filters = '';
 
         if (is_array($this->filters) && count($this->filters)) {
-            $filters = $filters = implode(" \n ", array_merge($this->filters ?? [], $this->filters_override ?? []));
+            $filterDefinitions = array_merge(
+                $this->filters ?? [],
+                $this->filters_override ?? []
+            );
+
+            $filterDefinitions = array_map(
+                fn (string $filter): string => trim($filter) === 'orderBy: _ @orderBy'
+                    ? $this->getOrderByFilter()
+                    : $filter,
+                $filterDefinitions
+            );
+
+            $filters = implode(" \n ", $filterDefinitions);
             $filters = <<<ENDDATA
                 (
                     $filters
@@ -67,5 +82,80 @@ class QueryCollection implements Operation
             {$this->getName()} $filters: {$this->getReturnType()} {$this->getAuthorize()} {$this->query}
         }
         ENDDATA;
+    }
+
+    private function getOrderByFilter(): string
+    {
+        if (! $this->reflector->isSubclassOf(EloquentModel::class)) {
+            return 'orderBy: _ @orderBy';
+        }
+
+        $model = new $this->class;
+        $relations = [];
+
+        foreach (
+            $this->reflector->getMethods(\ReflectionMethod::IS_PUBLIC) as $method
+        ) {
+            $name = $method->getName();
+            $returnType = $method->getReturnType();
+
+            if (
+                $method->isStatic()
+                || $method->getNumberOfParameters() !== 0
+                || ! $returnType instanceof \ReflectionNamedType
+                || ! is_a($returnType->getName(), Relation::class, true)
+                || in_array($name, $model->getHidden(), true)
+                || in_array($name, ['column', 'order'], true)
+            ) {
+                continue;
+            }
+
+            try {
+                $relation = Relation::noConstraints(
+                    fn () => $method->invoke($model)
+                );
+            } catch (\Throwable) {
+                continue;
+            }
+
+            if (! $relation instanceof Relation || $relation instanceof MorphTo) {
+                continue;
+            }
+
+            $related = $relation->getRelated();
+
+            $columns = $related->getConnection()
+                ->getSchemaBuilder()
+                ->getColumnListing($related->getTable());
+
+            $columns = array_values(
+                array_diff($columns, $related->getHidden())
+            );
+
+            $relationName = json_encode($name, JSON_THROW_ON_ERROR);
+
+            if ($columns === []) {
+                $relations[] = "{ relation: {$relationName} }";
+
+                continue;
+            }
+
+            $columnNames = json_encode($columns, JSON_THROW_ON_ERROR);
+
+            $relations[] = <<<GRAPHQL
+            {
+                relation: {$relationName}
+                columns: {$columnNames}
+            }
+            GRAPHQL;
+        }
+
+        if ($relations === []) {
+            return 'orderBy: _ @orderBy';
+        }
+
+        $definitions = implode(', ', $relations);
+
+        return "orderBy: _ @orderBy(relations: [{$definitions}])";
     }
 }

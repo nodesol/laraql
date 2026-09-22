@@ -1,7 +1,10 @@
 <?php
 
 use Nodesol\LaraQL\Attributes\QueryCollection;
+use Workbench\App\GraphQL\ArticleCollections;
+use Workbench\App\Models\AdminNote;
 use Workbench\App\Models\Article;
+use Workbench\App\Models\Comment;
 use Workbench\App\Models\Tag;
 
 it('derives a plural snake case name and a list return type from the class', function () {
@@ -30,6 +33,66 @@ it('generates the default collection arguments and paginates', function () {
         ->toContain('orderBy: _ @orderBy')
         ->toContain('): [Tag!]!')
         ->toContain('@paginate(defaultCount: 10)');
+});
+
+it('adds orderable relation columns for eloquent models', function () {
+    $schema = (new QueryCollection(class: Article::class))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy(relations: [')
+        ->toContain('relation: "user"')
+        ->toContain('columns: ["id","name","email","created_at","updated_at"]')
+        ->toContain('relation: "comments"')
+        ->toContain('relation: "tags"')
+        ->toContain('relation: "profile"')
+        ->toContain('relation: "morphComments"')
+        ->toContain('relation: "userComments"')
+        ->toContain('relation: "userProfile"')
+        ->not->toContain('relation: "brokenRelation"');
+});
+
+it('keeps hidden related columns out of orderable relation columns', function () {
+    $schema = (new QueryCollection(class: Tag::class))->getSchema();
+
+    expect($schema)
+        ->toContain('relation: "articles"')
+        ->not->toContain('internal_notes');
+});
+
+it('does not add morph-to relations to the order filter', function () {
+    $schema = (new QueryCollection(class: Comment::class))->getSchema();
+
+    expect($schema)
+        ->toContain('relation: "article"')
+        ->toContain('relation: "user"')
+        ->not->toContain('relation: "commentable"');
+});
+
+it('keeps the default order filter for collections that are not eloquent models', function () {
+    $schema = (new QueryCollection(class: ArticleCollections::class))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy')
+        ->not->toContain('@orderBy(relations:');
+});
+
+it('keeps the default order filter for models without relations', function () {
+    $schema = (new QueryCollection(class: AdminNote::class))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy')
+        ->not->toContain('@orderBy(relations:');
+});
+
+it('leaves a customized order filter unchanged', function () {
+    $schema = (new QueryCollection(
+        class: Article::class,
+        filters: ['orderBy: _ @orderBy(columns: ["title"])'],
+    ))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy(columns: ["title"])')
+        ->not->toContain('@orderBy(relations:');
 });
 
 it('merges extra filters into the default ones', function () {
