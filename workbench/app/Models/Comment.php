@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Nodesol\LaraQL\Attributes\Model as LaraQL;
 
-#[LaraQL]
+#[LaraQL(
+    operations: [
+        'query_collection' => [
+            // Opts into `@orderBy(relations: [...])`, which Lighthouse answers with a
+            // generated clause type instead of the shared `OrderByClause`.
+            'order_by_relations' => true,
+        ],
+    ],
+)]
 class Comment extends Model
 {
     protected $fillable = ['article_id', 'user_id', 'body'];

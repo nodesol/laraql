@@ -21,6 +21,15 @@ class QueryCollection implements Operation
         public ?array $filters_override = [],
         public ?string $query = '@paginate(defaultCount: 10)',
         public bool|string|null $authorize = null,
+        /**
+         * Offer the relations of the model to `@orderBy`.
+         *
+         * Adding a `relations` argument makes Lighthouse expose a generated clause type
+         * per field (e.g. `QueryArticlesOrderByRelationOrderByClause`) instead of the
+         * shared `OrderByClause`, which is a breaking change for clients that reference
+         * that type. It is therefore opt in.
+         */
+        public bool $order_by_relations = false,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -63,7 +72,7 @@ class QueryCollection implements Operation
             );
 
             $filterDefinitions = array_map(
-                fn (string $filter): string => trim($filter) === 'orderBy: _ @orderBy'
+                fn (string $filter): string => $this->order_by_relations && trim($filter) === 'orderBy: _ @orderBy'
                     ? $this->getOrderByFilter()
                     : $filter,
                 $filterDefinitions

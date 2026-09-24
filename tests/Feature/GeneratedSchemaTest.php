@@ -95,6 +95,17 @@ it('exposes the relation and input arguments added through attribute overrides',
         ->toContain('minViews: Int');
 });
 
+it('keeps the shared order by clause type unless a collection opts in', function () {
+    $schema = printGeneratedSchema();
+
+    // `@orderBy(relations: ...)` makes Lighthouse generate a clause type per field, which
+    // renames the argument type of that collection, so only `comments` opts in.
+    expect($schema)
+        ->toContain('orderBy: [OrderByClause!]')
+        ->toContain('orderBy: [QueryCommentsOrderByRelationOrderByClause!]')
+        ->not->toContain('orderBy: [QueryPublishedArticlesOrderByRelationOrderByClause!]');
+});
+
 it('builds an executable schema', function () {
     $schema = app(SchemaBuilder::class)->schema();
 

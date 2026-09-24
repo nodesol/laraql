@@ -65,6 +65,14 @@ Same shape as `#[Query]`, with collection defaults: `name` = `Str::snake(Str::pl
 
 Because `@paginate` is applied, Lighthouse rewrites the field to return `<UnderlyingType>Paginator` (with `data` and `paginatorInfo`) and adds the `first` and `page` arguments itself.
 
+`order_by_relations: true` makes the default `orderBy` filter orderable by relation aggregates. It is opt in, because Lighthouse answers a `relations` argument with a generated clause type per field (e.g. `QueryArticlesOrderByRelationOrderByClause`) instead of the shared `OrderByClause`:
+
+```php
+#[QueryCollection(class: Article::class, name: 'articles', order_by_relations: true)]
+```
+
+Relations that are not `BelongsTo`/`HasOne`/`HasMany`/`BelongsToMany` (such as `MorphTo`) and relations whose related columns are all hidden are left out; a relation is listed as `{ relation: "comments", columns: [...] }`, or without `columns` when the related model hides everything.
+
 ## `#[Mutation]`
 
 Constructor: `class`, `name` (required), `return_type` (default the class short name), `directives`, `inputs`, `query` (default `'@<name>'`), `authorize`.

@@ -117,6 +117,26 @@ it('filters, orders and paginates the generated collection query', function () {
         ->and($response->json('data.publishedArticles.paginatorInfo.hasMorePages'))->toBeFalse();
 });
 
+it('orders a collection that opted into relation order by', function () {
+    $article = makeArticle(['title' => 'Ordered']);
+
+    $article->comments()->create(['body' => 'First']);
+    $article->comments()->create(['body' => 'Second']);
+
+    // `comments` opts into `@orderBy(relations: ...)`; plain column ordering keeps working.
+    $response = $this->graphQL(/** @lang GraphQL */ '
+        query {
+            comments(orderBy: [{ column: "id", order: DESC }]) {
+                data { id body }
+            }
+        }
+    ');
+
+    $response->assertGraphQLErrorFree();
+
+    expect($response->json('data.comments.data.0.body'))->toBe('Second');
+});
+
 it('resolves the renamed collection query with its extra filters', function () {
     makeArticle(['title' => 'Draft one', 'status' => 'draft']);
     makeArticle(['title' => 'Published one', 'status' => 'published']);

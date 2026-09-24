@@ -35,8 +35,17 @@ it('generates the default collection arguments and paginates', function () {
         ->toContain('@paginate(defaultCount: 10)');
 });
 
-it('adds orderable relation columns for eloquent models', function () {
-    $schema = (new QueryCollection(class: Article::class))->getSchema();
+it('keeps the shared order by clause unless relations are opted in', function () {
+    // `relations` makes Lighthouse generate a clause type per field, e.g.
+    // `QueryArticlesOrderByRelationOrderByClause` instead of the shared
+    // `OrderByClause`, so it stays off unless a collection asks for it.
+    expect((new QueryCollection(class: Article::class))->getSchema())
+        ->toContain('orderBy: _ @orderBy')
+        ->not->toContain('@orderBy(relations:');
+});
+
+it('offers orderable relation columns when opted in', function () {
+    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy(relations: [')
@@ -52,7 +61,7 @@ it('adds orderable relation columns for eloquent models', function () {
 });
 
 it('keeps hidden related columns out of orderable relation columns', function () {
-    $schema = (new QueryCollection(class: Tag::class))->getSchema();
+    $schema = (new QueryCollection(class: Tag::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('relation: "articles"')
@@ -60,7 +69,7 @@ it('keeps hidden related columns out of orderable relation columns', function ()
 });
 
 it('does not add morph-to relations to the order filter', function () {
-    $schema = (new QueryCollection(class: Comment::class))->getSchema();
+    $schema = (new QueryCollection(class: Comment::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('relation: "article"')
@@ -69,7 +78,7 @@ it('does not add morph-to relations to the order filter', function () {
 });
 
 it('keeps the default order filter for collections that are not eloquent models', function () {
-    $schema = (new QueryCollection(class: ArticleCollections::class))->getSchema();
+    $schema = (new QueryCollection(class: ArticleCollections::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy')
@@ -77,7 +86,7 @@ it('keeps the default order filter for collections that are not eloquent models'
 });
 
 it('keeps the default order filter for models without relations', function () {
-    $schema = (new QueryCollection(class: AdminNote::class))->getSchema();
+    $schema = (new QueryCollection(class: AdminNote::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy')
@@ -88,6 +97,7 @@ it('leaves a customized order filter unchanged', function () {
     $schema = (new QueryCollection(
         class: Article::class,
         filters: ['orderBy: _ @orderBy(columns: ["title"])'],
+        order_by_relations: true,
     ))->getSchema();
 
     expect($schema)
@@ -138,7 +148,7 @@ it('applies directives to the query extension', function () {
 });
 
 it('offers the relations of a model as order by relations', function () {
-    $schema = (new QueryCollection(class: Article::class))->getSchema();
+    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy(relations: [')
@@ -147,17 +157,9 @@ it('offers the relations of a model as order by relations', function () {
 });
 
 it('offers a relation without a column list when every column is hidden', function () {
-    $schema = (new QueryCollection(class: Article::class))->getSchema();
+    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
 
     // `Article::redacted()` points at a model that hides all of its columns, so the
     // relation is offered without a column list.
     expect($schema)->toContain('{ relation: "redacted" }');
-});
-
-it('keeps the plain order by argument for a class that is not a model', function () {
-    $schema = (new QueryCollection(class: ArticleCollections::class))->getSchema();
-
-    expect($schema)
-        ->toContain('orderBy: _ @orderBy')
-        ->not->toContain('relations: [');
 });
