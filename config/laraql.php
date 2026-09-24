@@ -12,4 +12,5 @@ return [
     ],
     /** @phpstan-ignore larastan.noEnvCallsOutsideOfConfig */
     'cache' => (bool) env('LARAQL_CACHE', ! config('app.debug')),
+    'cache_store' => (bool) env('LARAQL_CACHE_STORE', env('CACHE_STORE')),
 ];

@@ -28,7 +28,7 @@ class BuildSchemaStringListener
     public function handle(BuildSchemaString $event): string
     {
         if (config('laraql.cache')) {
-            return Cache::rememberForever('laraql_schema', fn () => $this->getSchemaString());
+            return Cache::store(config('laraql.cache_store'))->rememberForever('laraql_schema', fn () => $this->getSchemaString());
         }
 
         return $this->getSchemaString();
