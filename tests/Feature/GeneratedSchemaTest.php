@@ -95,15 +95,22 @@ it('exposes the relation and input arguments added through attribute overrides',
         ->toContain('minViews: Int');
 });
 
-it('keeps the shared order by clause type unless a collection opts in', function () {
+it('gives every orderable relation its own order by argument', function () {
     $schema = printGeneratedSchema();
 
-    // `@orderBy(relations: ...)` makes Lighthouse generate a clause type per field, which
-    // renames the argument type of that collection, so only `comments` opts in.
     expect($schema)
+        // Every collection keeps the shared clause type on its default orderBy argument.
         ->toContain('orderBy: [OrderByClause!]')
-        ->toContain('orderBy: [QueryCommentsOrderByRelationOrderByClause!]')
-        ->not->toContain('orderBy: [QueryPublishedArticlesOrderByRelationOrderByClause!]');
+        ->not->toContain('orderBy: [QueryPublishedArticlesOrderByRelationOrderByClause!]')
+        // Each relation is offered on its own argument instead.
+        ->toContain('orderByUser: [QueryPublishedArticlesOrderByUserRelationOrderByClause!]')
+        ->toContain('orderByComments: [QueryPublishedArticlesOrderByCommentsRelationOrderByClause!]')
+        ->toContain('orderByTags: [QueryPublishedArticlesOrderByTagsRelationOrderByClause!]')
+        ->toContain('orderByArticles: [QueryTagsOrderByArticlesRelationOrderByClause!]')
+        ->toContain('orderByArticle: [QueryCommentsOrderByArticleRelationOrderByClause!]')
+        ->toContain('input QueryCommentsOrderByArticleArticle {')
+        // MorphTo relations can not be ordered by.
+        ->not->toContain('orderByCommentable');
 });
 
 it('builds an executable schema', function () {

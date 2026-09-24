@@ -4,6 +4,7 @@ use Nodesol\LaraQL\Attributes\QueryCollection;
 use Workbench\App\GraphQL\ArticleCollections;
 use Workbench\App\Models\AdminNote;
 use Workbench\App\Models\Article;
+use Workbench\App\Models\CollidingRelations;
 use Workbench\App\Models\Comment;
 use Workbench\App\Models\Tag;
 
@@ -35,50 +36,60 @@ it('generates the default collection arguments and paginates', function () {
         ->toContain('@paginate(defaultCount: 10)');
 });
 
-it('keeps the shared order by clause unless relations are opted in', function () {
-    // `relations` makes Lighthouse generate a clause type per field, e.g.
-    // `QueryArticlesOrderByRelationOrderByClause` instead of the shared
-    // `OrderByClause`, so it stays off unless a collection asks for it.
-    expect((new QueryCollection(class: Article::class))->getSchema())
+it('gives every orderable relation of a model its own order by argument', function () {
+    $schema = (new QueryCollection(class: Article::class))->getSchema();
+
+    expect($schema)
+        // The default argument is untouched, so clients keep the shared OrderByClause type.
+        ->toContain('orderBy: _ @orderBy')
+        ->not->toContain('orderBy: _ @orderBy(relations:')
+        // Every orderable relation is offered on its own argument.
+        ->toContain('orderByUser: _ @orderBy(relations: [{ relation: "user", columns: ["id","name","email","created_at","updated_at"] }])')
+        ->toContain('orderByComments: _ @orderBy(relations: [{ relation: "comments", columns: [')
+        ->toContain('orderByTags: _ @orderBy(relations: [{ relation: "tags", columns: [')
+        ->toContain('orderByProfile: _ @orderBy(relations: [{ relation: "profile", columns: [')
+        ->toContain('orderByMorphComments: _ @orderBy(relations: [{ relation: "morphComments", columns: [')
+        ->toContain('orderByUserComments: _ @orderBy(relations: [{ relation: "userComments", columns: [')
+        ->toContain('orderByUserProfile: _ @orderBy(relations: [{ relation: "userProfile", columns: [')
+        ->not->toContain('orderByBrokenRelation');
+});
+
+it('adds no relation order by arguments when they are turned off', function () {
+    $schema = (new QueryCollection(class: Article::class, order_by_relations: false))->getSchema();
+
+    expect($schema)
         ->toContain('orderBy: _ @orderBy')
         ->not->toContain('@orderBy(relations:');
 });
 
-it('offers orderable relation columns when opted in', function () {
-    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
+it('adds no relation order by arguments without an order by argument', function () {
+    $schema = (new QueryCollection(class: Article::class, filters: ['first: Int! = 10']))->getSchema();
 
     expect($schema)
-        ->toContain('orderBy: _ @orderBy(relations: [')
-        ->toContain('relation: "user"')
-        ->toContain('columns: ["id","name","email","created_at","updated_at"]')
-        ->toContain('relation: "comments"')
-        ->toContain('relation: "tags"')
-        ->toContain('relation: "profile"')
-        ->toContain('relation: "morphComments"')
-        ->toContain('relation: "userComments"')
-        ->toContain('relation: "userProfile"')
-        ->not->toContain('relation: "brokenRelation"');
+        ->toContain('first: Int! = 10')
+        ->not->toContain('@orderBy');
 });
 
 it('keeps hidden related columns out of orderable relation columns', function () {
-    $schema = (new QueryCollection(class: Tag::class, order_by_relations: true))->getSchema();
+    $schema = (new QueryCollection(class: Tag::class))->getSchema();
 
     expect($schema)
-        ->toContain('relation: "articles"')
+        ->toContain('orderByArticles: _ @orderBy(relations: [{ relation: "articles", columns: [')
         ->not->toContain('internal_notes');
 });
 
-it('does not add morph-to relations to the order filter', function () {
-    $schema = (new QueryCollection(class: Comment::class, order_by_relations: true))->getSchema();
+it('does not add morph-to relations to the order arguments', function () {
+    $schema = (new QueryCollection(class: Comment::class))->getSchema();
 
     expect($schema)
-        ->toContain('relation: "article"')
-        ->toContain('relation: "user"')
-        ->not->toContain('relation: "commentable"');
+        ->toContain('orderByArticle: _ @orderBy(relations: [{ relation: "article", columns: [')
+        ->toContain('orderByUser: _ @orderBy(relations: [{ relation: "user", columns: [')
+        ->not->toContain('relation: "commentable"')
+        ->not->toContain('orderByCommentable');
 });
 
 it('keeps the default order filter for collections that are not eloquent models', function () {
-    $schema = (new QueryCollection(class: ArticleCollections::class, order_by_relations: true))->getSchema();
+    $schema = (new QueryCollection(class: ArticleCollections::class))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy')
@@ -86,23 +97,38 @@ it('keeps the default order filter for collections that are not eloquent models'
 });
 
 it('keeps the default order filter for models without relations', function () {
-    $schema = (new QueryCollection(class: AdminNote::class, order_by_relations: true))->getSchema();
+    $schema = (new QueryCollection(class: AdminNote::class))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy')
         ->not->toContain('@orderBy(relations:');
 });
 
-it('leaves a customized order filter unchanged', function () {
+it('leaves a customized order filter unchanged and still adds the relation arguments', function () {
     $schema = (new QueryCollection(
         class: Article::class,
         filters: ['orderBy: _ @orderBy(columns: ["title"])'],
-        order_by_relations: true,
     ))->getSchema();
 
     expect($schema)
         ->toContain('orderBy: _ @orderBy(columns: ["title"])')
-        ->not->toContain('@orderBy(relations:');
+        ->toContain('orderByComments: _ @orderBy(relations: [{ relation: "comments", columns: [');
+});
+
+it('keeps the first relation when two methods map to the same order by argument', function () {
+    $schema = (new QueryCollection(class: CollidingRelations::class))->getSchema();
+
+    // `adminNote()` and `admin_note()` both become `orderByAdminNote`.
+    expect(substr_count($schema, 'orderByAdminNote: _ @orderBy'))->toBe(1)
+        ->and($schema)->toContain('orderByAdminNote: _ @orderBy(relations: [{ relation: "');
+});
+
+it('offers a relation without a column list when every column is hidden', function () {
+    $schema = (new QueryCollection(class: Article::class))->getSchema();
+
+    // `Article::redacted()` points at a model that hides all of its columns, so the
+    // relation is offered without a column list.
+    expect($schema)->toContain('orderByRedacted: _ @orderBy(relations: [{ relation: "redacted" }])');
 });
 
 it('merges extra filters into the default ones', function () {
@@ -145,21 +171,4 @@ it('adds no authorize directive when authorization is off', function () {
 it('applies directives to the query extension', function () {
     expect((new QueryCollection(class: Article::class, directives: ['@guard']))->getSchema())
         ->toContain('extend type Query @guard');
-});
-
-it('offers the relations of a model as order by relations', function () {
-    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
-
-    expect($schema)
-        ->toContain('orderBy: _ @orderBy(relations: [')
-        ->toContain('relation: "comments"')
-        ->toContain('columns: [');
-});
-
-it('offers a relation without a column list when every column is hidden', function () {
-    $schema = (new QueryCollection(class: Article::class, order_by_relations: true))->getSchema();
-
-    // `Article::redacted()` points at a model that hides all of its columns, so the
-    // relation is offered without a column list.
-    expect($schema)->toContain('{ relation: "redacted" }');
 });

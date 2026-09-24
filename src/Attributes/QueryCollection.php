@@ -22,14 +22,16 @@ class QueryCollection implements Operation
         public ?string $query = '@paginate(defaultCount: 10)',
         public bool|string|null $authorize = null,
         /**
-         * Offer the relations of the model to `@orderBy`.
+         * Offer every orderable relation of the model on its own `orderBy<Relation>`
+         * argument, e.g. `orderByTenant` for a `tenant()` relation.
          *
-         * Adding a `relations` argument makes Lighthouse expose a generated clause type
-         * per field (e.g. `QueryArticlesOrderByRelationOrderByClause`) instead of the
-         * shared `OrderByClause`, which is a breaking change for clients that reference
-         * that type. It is therefore opt in.
+         * Lighthouse answers the `relations` argument of `@orderBy` with a clause type
+         * that is generated per field (e.g. `QueryUsersOrderByTenantRelationOrderByClause`),
+         * so the relations get their own arguments and the default `orderBy` argument keeps
+         * the shared `OrderByClause` type that clients already reference. Set this to false
+         * to keep the collection query free of the extra arguments.
          */
-        public bool $order_by_relations = false,
+        public bool $order_by_relations = true,
     ) {
         $this->reflector = new \ReflectionClass($this->class);
     }
@@ -71,12 +73,12 @@ class QueryCollection implements Operation
                 $this->filters_override ?? []
             );
 
-            $filterDefinitions = array_map(
-                fn (string $filter): string => $this->order_by_relations && trim($filter) === 'orderBy: _ @orderBy'
-                    ? $this->getOrderByFilter()
-                    : $filter,
-                $filterDefinitions
-            );
+            if ($this->order_by_relations && $this->hasOrderByArgument($filterDefinitions)) {
+                $filterDefinitions = array_merge(
+                    $filterDefinitions,
+                    $this->getRelationOrderByArguments()
+                );
+            }
 
             $filters = implode(" \n ", $filterDefinitions);
             $filters = <<<ENDDATA
@@ -93,14 +95,40 @@ class QueryCollection implements Operation
         ENDDATA;
     }
 
-    private function getOrderByFilter(): string
+    /**
+     * Whether the collection still offers an `orderBy` argument.
+     *
+     * @param  array<int, string>  $filterDefinitions
+     */
+    private function hasOrderByArgument(array $filterDefinitions): bool
+    {
+        foreach ($filterDefinitions as $filterDefinition) {
+            if (str_starts_with(trim($filterDefinition), 'orderBy:')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Build an `orderBy<Relation>` argument for every orderable relation of the model.
+     *
+     * Relations are offered one per argument, so the clause type Lighthouse generates for
+     * a `relations` argument does not replace the shared `OrderByClause` type of the plain
+     * `orderBy` argument.
+     *
+     * @return array<int, string>
+     */
+    private function getRelationOrderByArguments(): array
     {
         if (! $this->reflector->isSubclassOf(EloquentModel::class)) {
-            return 'orderBy: _ @orderBy';
+            return [];
         }
 
         $model = new $this->class;
-        $relations = [];
+        $arguments = [];
+        $argumentNames = [];
 
         foreach (
             $this->reflector->getMethods(\ReflectionMethod::IS_PUBLIC) as $method
@@ -131,6 +159,16 @@ class QueryCollection implements Operation
                 continue;
             }
 
+            $argumentName = 'orderBy'.Str::studly($name);
+
+            // `user_profile()` and `userProfile()` both become `orderByUserProfile`, so the
+            // first relation that is offered keeps the argument.
+            if (in_array($argumentName, $argumentNames, true)) {
+                continue;
+            }
+
+            $argumentNames[] = $argumentName;
+
             $related = $relation->getRelated();
 
             $columns = $related->getConnection()
@@ -141,30 +179,17 @@ class QueryCollection implements Operation
                 array_diff($columns, $related->getHidden())
             );
 
-            $relationName = json_encode($name, JSON_THROW_ON_ERROR);
+            $relationDefinition = '{ relation: '.json_encode($name, JSON_THROW_ON_ERROR);
 
-            if ($columns === []) {
-                $relations[] = "{ relation: {$relationName} }";
-
-                continue;
+            if ($columns !== []) {
+                $relationDefinition .= ', columns: '.json_encode($columns, JSON_THROW_ON_ERROR);
             }
 
-            $columnNames = json_encode($columns, JSON_THROW_ON_ERROR);
+            $relationDefinition .= ' }';
 
-            $relations[] = <<<GRAPHQL
-            {
-                relation: {$relationName}
-                columns: {$columnNames}
-            }
-            GRAPHQL;
+            $arguments[] = "{$argumentName}: _ @orderBy(relations: [{$relationDefinition}])";
         }
 
-        if ($relations === []) {
-            return 'orderBy: _ @orderBy';
-        }
-
-        $definitions = implode(', ', $relations);
-
-        return "orderBy: _ @orderBy(relations: [{$definitions}])";
+        return $arguments;
     }
 }

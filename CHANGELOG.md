@@ -6,7 +6,11 @@ All notable changes to `LaraQL` will be documented in this file.
 
 ### Fixed
 
-* Restore the shared `OrderByClause` type. The `relations` argument that v1.0.17 added to the default `@orderBy` filter makes Lighthouse expose a generated clause type per field (`Query<Field>OrderByRelationOrderByClause`) instead of the shared `OrderByClause`, which renamed the `orderBy` argument type of every collection query of a model with relations. The rewrite is now opt in through `order_by_relations: true` on `#[QueryCollection]`, so the generated schema matches v1.0.16 again by default.
+* Restore the shared `OrderByClause` type. The `relations` argument that v1.0.17 added to the default `@orderBy` filter makes Lighthouse expose a generated clause type per field (`Query<Field>OrderByRelationOrderByClause`) instead of the shared `OrderByClause`, which renamed the `orderBy` argument type of every collection query of a model with relations.
+
+### Changed
+
+* `#[QueryCollection]` now offers every orderable relation on its own `orderBy<Relation>` argument (`orderByTenant` for a `tenant()` relation) instead of rewriting the default `orderBy` filter, so the `orderBy` argument of generated collections is byte for byte the one from v1.0.16 again. Relations that are `MorphTo`, whose columns are all hidden, or whose argument name collides with an earlier relation are left out. The extra arguments can be turned off with `order_by_relations: false`, which is also implied by removing `orderBy` from `filters`.
 
 ## v1.0.17 - 2026-09-24
 
