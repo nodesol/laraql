@@ -136,3 +136,28 @@ it('applies directives to the query extension', function () {
     expect((new QueryCollection(class: Article::class, directives: ['@guard']))->getSchema())
         ->toContain('extend type Query @guard');
 });
+
+it('offers the relations of a model as order by relations', function () {
+    $schema = (new QueryCollection(class: Article::class))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy(relations: [')
+        ->toContain('relation: "comments"')
+        ->toContain('columns: [');
+});
+
+it('offers a relation without a column list when every column is hidden', function () {
+    $schema = (new QueryCollection(class: Article::class))->getSchema();
+
+    // `Article::redacted()` points at a model that hides all of its columns, so the
+    // relation is offered without a column list.
+    expect($schema)->toContain('{ relation: "redacted" }');
+});
+
+it('keeps the plain order by argument for a class that is not a model', function () {
+    $schema = (new QueryCollection(class: ArticleCollections::class))->getSchema();
+
+    expect($schema)
+        ->toContain('orderBy: _ @orderBy')
+        ->not->toContain('relations: [');
+});

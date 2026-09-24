@@ -17,6 +17,15 @@ enum ArticleStatus {
     PUBLISHED
 }
 
+"""
+Hand written type for the relation target of `Article.redacted`, whose model hides all
+of its columns. LaraQL never generates a type for it because the model carries no
+attribute.
+"""
+type RedactedRecord {
+    id: ID!
+}
+
 type Query {
     handWrittenPing: String @field(resolver: "Workbench\\App\\GraphQL\\HandWrittenPingQuery@ping")
 }

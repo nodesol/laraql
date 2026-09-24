@@ -70,6 +70,14 @@ class Article extends Model
     }
 
     /**
+     * Points at a model that hides every one of its columns.
+     */
+    public function redacted(): HasMany
+    {
+        return $this->hasMany(RedactedRecord::class);
+    }
+
+    /**
      * Declared for relation-discovery coverage; the keys are never queried in this suite.
      */
     public function userComments(): HasManyThrough
