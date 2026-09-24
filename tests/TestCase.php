@@ -67,8 +67,10 @@ abstract class TestCase extends Orchestra
         // LaraQL caches the generated SDL when app.debug is off.
         $app['config']->set('laraql.cache', false);
 
-        // An array cache keeps cache assertions isolated per test.
+        // An array cache keeps cache assertions isolated per test. The store name is pinned
+        // so the suite does not depend on the ambient CACHE_STORE of the environment.
         $app['config']->set('cache.default', 'array');
+        $app['config']->set('laraql.cache_store', 'array');
 
         // Stands in for config/scout.php so the ScoutFilters handler reads a limit from config.
         $app['config']->set('scout', [

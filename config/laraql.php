@@ -12,5 +12,10 @@ return [
     ],
     /** @phpstan-ignore larastan.noEnvCallsOutsideOfConfig */
     'cache' => (bool) env('LARAQL_CACHE', ! config('app.debug')),
-    'cache_store' => (bool) env('LARAQL_CACHE_STORE', env('CACHE_STORE')),
+    // The store the generated SDL is remembered in. Unset (the default) means the default store
+    // of the application, which already follows `CACHE_STORE`. It must stay a string: casting
+    // the store name to a boolean made `LARAQL_CACHE_STORE=redis` resolve to a store named `1`
+    // and made an empty `CACHE_STORE` fail with "Cache store [] is not defined".
+    /** @phpstan-ignore larastan.noEnvCallsOutsideOfConfig */
+    'cache_store' => env('LARAQL_CACHE_STORE'),
 ];

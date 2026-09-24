@@ -157,7 +157,7 @@ class Article
 ## Step 6 - verify
 
 1. Run the migration: LaraQL introspects the real tables, and an unmigrated table breaks schema building.
-2. Clear the schema cache when `laraql.cache` is enabled (the default outside debug) - the SDL is cached forever under the `laraql_schema` key.
+2. Clear the schema cache when `laraql.cache` is enabled (the default outside debug) - the SDL is cached forever under the `laraql_schema` key in `laraql.cache_store` (unset = the default store of the application). A store that does not exist is ignored and the SDL is generated instead.
 3. Print and validate the merged schema:
 
 ```bash

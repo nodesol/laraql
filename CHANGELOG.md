@@ -11,6 +11,7 @@ All notable changes to `LaraQL` will be documented in this file.
 ### Fixed
 
 * Restore the shared `OrderByClause` type. The `relations` argument that v1.0.17 added to the default `@orderBy` filter makes Lighthouse expose a generated clause type per field (`Query<Field>OrderByRelationOrderByClause`) instead of the shared `OrderByClause`, which renamed the `orderBy` argument type of every collection query of a model with relations.
+* Keep `laraql.cache_store` a string. The store name was cast to a boolean, so `LARAQL_CACHE_STORE=redis` looked up a store named `1` (`Cache store [1] is not defined.`) and an unset store combined with an empty `CACHE_STORE` looked up `Cache store [] is not defined.`. An unset or empty store now means the default store of the application, and a store that does not exist no longer breaks schema building: the SDL is generated without caching.
 
 ### Changed
 

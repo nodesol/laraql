@@ -4,7 +4,7 @@ Work through this order before changing code.
 
 1. Does the class even get scanned? It must live inside `config('laraql.directories')` (default `app/Models` and `app/GraphQL`), be a `*.php` file, be PSR-4 autoloadable in the application namespace, and (for models) be a concrete `Illuminate\Database\Eloquent\Model` subclass. A model also needs `#[Model]` unless `laraql.models.auto_include` is enabled.
 2. Is the generated SDL what you expect? `php artisan lighthouse:print-schema` prints whatever Lighthouse actually built, including everything LaraQL injected.
-3. Is a cached copy being served? `laraql.cache` defaults to enabled outside debug and stores the SDL forever under the `laraql_schema` key, and Lighthouse caches the compiled AST in `bootstrap/cache/lighthouse-schema.php` when `lighthouse.schema_cache.enable` is on. Clear both, plus the config cache when `config/laraql.php` changed.
+3. Is a cached copy being served? `laraql.cache` defaults to enabled outside debug and stores the SDL forever under the `laraql_schema` key in `laraql.cache_store` (unset = the default store of the application), and Lighthouse caches the compiled AST in `bootstrap/cache/lighthouse-schema.php` when `lighthouse.schema_cache.enable` is on. Clear both, plus the config cache when `config/laraql.php` changed.
 4. Does the database match the code? The schema is built from the live tables; run migrations first, and keep the connection available in the environment that builds the schema (including CI and production deploys).
 5. Is the merged SDL valid? `php artisan lighthouse:validate-schema`.
 

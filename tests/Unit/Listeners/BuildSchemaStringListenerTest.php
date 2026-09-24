@@ -94,19 +94,60 @@ it('returns no model schema when no directory is configured', function () {
         ->toContain('scalar Upload');
 });
 
-it('caches the generated schema when caching is enabled', function () {
+it('caches the generated schema in the configured store when caching is enabled', function () {
     config()->set('laraql.cache', true);
-    Cache::clear();
+    config()->set('laraql.cache_store', 'array');
+    Cache::store('array')->clear();
 
     $schema = laraqlGeneratedSchema();
 
     expect($schema)->toContain('type Article')
-        ->and(Cache::has('laraql_schema'))->toBeTrue();
+        ->and(Cache::store('array')->has('laraql_schema'))->toBeTrue();
 
     // Once the cache holds a value, that value is what gets served.
-    Cache::forever('laraql_schema', 'cached-schema');
+    Cache::store('array')->forever('laraql_schema', 'cached-schema');
 
     expect(laraqlGeneratedSchema())->toBe('cached-schema');
+});
+
+it('falls back to the default store when no store is configured', function (?string $store) {
+    config()->set('laraql.cache', true);
+    config()->set('laraql.cache_store', $store);
+    Cache::store('array')->clear();
+
+    expect(laraqlGeneratedSchema())->toContain('type Article')
+        ->and(Cache::store('array')->has('laraql_schema'))->toBeTrue();
+})->with([
+    'no store at all' => [null],
+    'an empty store' => [''],
+]);
+
+it('generates the schema when the configured store does not exist', function () {
+    // A misconfigured cache must not take the schema down with it. `Cache::store()` throws
+    // "Cache store [] is not defined." for a store that is not configured.
+    config()->set('laraql.cache', true);
+    config()->set('laraql.cache_store', 'does-not-exist');
+
+    expect(laraqlGeneratedSchema())->toContain('type Article');
+});
+
+it('generates the schema when the default store of the application is empty', function () {
+    // This is the shape of a "Cache store [] is not defined." failure: no LaraQL store is
+    // configured and the application has an empty default store.
+    config()->set('laraql.cache', true);
+    config()->set('laraql.cache_store', null);
+    config()->set('cache.default', '');
+
+    expect(laraqlGeneratedSchema())->toContain('type Article');
+});
+
+it('keeps the cache store configuration a string', function () {
+    // `cache_store` used to be cast to a boolean, which turned `LARAQL_CACHE_STORE=redis`
+    // into a lookup of a store named `1`.
+    $config = require dirname(__DIR__, 3).'/config/laraql.php';
+
+    expect($config['cache_store'])->not->toBeBool()
+        ->and($config['cache'])->toBeBool();
 });
 
 it('does not touch the cache when caching is disabled', function () {

@@ -2,8 +2,10 @@
 
 namespace Nodesol\LaraQL\Listeners;
 
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use InvalidArgumentException;
 use Nodesol\LaraQL\Attributes\Input;
 use Nodesol\LaraQL\Attributes\Model as ModelAttribute;
 use Nodesol\LaraQL\Attributes\Mutation;
@@ -27,11 +29,31 @@ class BuildSchemaStringListener
      */
     public function handle(BuildSchemaString $event): string
     {
-        if (config('laraql.cache')) {
-            return Cache::store(config('laraql.cache_store'))->rememberForever('laraql_schema', fn () => $this->getSchemaString());
+        if (! config('laraql.cache')) {
+            return $this->getSchemaString();
         }
 
-        return $this->getSchemaString();
+        try {
+            return $this->getCacheStore()->rememberForever('laraql_schema', fn () => $this->getSchemaString());
+        } catch (InvalidArgumentException) {
+            // A store that does not exist must not take the schema down with it.
+            return $this->getSchemaString();
+        }
+    }
+
+    /**
+     * The cache repository the generated schema is remembered in.
+     *
+     * An unset or empty `laraql.cache_store` means the default store of the application,
+     * which is what `Cache::store(null)` resolves to.
+     */
+    private function getCacheStore(): Repository
+    {
+        $store = config('laraql.cache_store');
+
+        return Cache::store(
+            is_string($store) && $store !== '' ? $store : null
+        );
     }
 
     private function getSchemaString(): string
