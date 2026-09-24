@@ -2,6 +2,21 @@
 
 All notable changes to `LaraQL` will be documented in this file.
 
+## v1.0.17 - 2026-09-24
+
+### What's Changed
+
+* Fix documentation: avoid Model naming conflict with Eloquent by @Atif-Javeed in https://github.com/nodesol/laraql/pull/9
+* Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/nodesol/laraql/pull/16
+* add orderby-relation by @atifalie in https://github.com/nodesol/laraql/pull/17
+
+### New Contributors
+
+* @Atif-Javeed made their first contribution in https://github.com/nodesol/laraql/pull/9
+* @atifalie made their first contribution in https://github.com/nodesol/laraql/pull/17
+
+**Full Changelog**: https://github.com/nodesol/laraql/compare/v1.0.16...v1.0.17
+
 ## v1.0.16 - 2026-09-17
 
 ### What's Changed
